@@ -505,4 +505,9 @@ import './contrib/editTelemetry/browser/editTelemetry.contribution.js';
 // Opener
 import './contrib/opener/browser/opener.contribution.js';
 
+// Vantrex
+import './contrib/vantrex/browser/vantrexDefaults.js';
+import './contrib/vantrex/browser/commandBar.js';
+import './contrib/vantrex/browser/sidebarTrim.js';
+
 //#endregion

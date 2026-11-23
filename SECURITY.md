@@ -1,14 +1,23 @@
-<!-- BEGIN MICROSOFT SECURITY.MD V1.0.0 BLOCK -->
+# Security Policy
 
-## Security
+## Reporting a vulnerability
 
-Microsoft takes the security of our software products and services seriously, which
-includes all source code repositories in our GitHub organizations.
+Please **do not report security vulnerabilities in a public issue**.
 
-**Please do not report security vulnerabilities through public GitHub issues.**
+Use GitHub's private vulnerability reporting instead: open the **Security** tab of this repository and choose **Report a vulnerability**.
+Include what you found, how to reproduce it, and the version (**Help > About**) and platform you used.
 
-For security reporting information, locations, contact information, and policies,
-please review the latest guidance for Microsoft repositories at
-[https://aka.ms/SECURITY.md](https://aka.ms/SECURITY.md).
+You can expect an acknowledgement within a few days. Once a fix is available we will publish it in a release and credit you if you wish.
 
-<!-- END MICROSOFT SECURITY.MD BLOCK -->
+## Scope
+
+This policy covers the Vantrex IDE in this repository: the changes made on top of Code - OSS, the Vantrex Account extension and the build and
+release workflows.
+
+Problems in Code - OSS itself that are not specific to Vantrex are best reported to the
+[upstream project](https://github.com/microsoft/vscode/security/policy). Vulnerabilities in the Vantrex platform (the dashboard and API) should
+be reported privately to the Vantrex team in the same way.
+
+## Supported versions
+
+While the project is in early preview, only the latest release receives fixes.

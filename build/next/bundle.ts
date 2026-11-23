@@ -8,7 +8,7 @@ import * as path from 'path';
 import { SourceMapConsumer } from 'source-map';
 
 export const desktopWorkbenchEntryPoint = 'vs/workbench/workbench.desktop.main';
-export const bundleAssetLoaders = { '.ttf': 'file', '.svg': 'file', '.png': 'file', '.sh': 'file' } satisfies Record<string, esbuild.Loader>;
+export const bundleAssetLoaders = { '.ttf': 'file', '.woff2': 'file', '.svg': 'file', '.png': 'file', '.sh': 'file' } satisfies Record<string, esbuild.Loader>;
 
 const fileHeader = `/*!--------------------------------------------------------
  * Copyright (C) Microsoft Corporation. All rights reserved.

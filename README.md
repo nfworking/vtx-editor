@@ -1,76 +1,135 @@
-# Visual Studio Code - Open Source ("Code - OSS")
-[![Feature Requests](https://img.shields.io/github/issues/microsoft/vscode/feature-request.svg)](https://github.com/microsoft/vscode/issues?q=is%3Aopen+is%3Aissue+label%3Afeature-request+sort%3Areactions-%2B1-desc)
-[![Bugs](https://img.shields.io/github/issues/microsoft/vscode/bug.svg)](https://github.com/microsoft/vscode/issues?utf8=✓&q=is%3Aissue+is%3Aopen+label%3Abug)
-
-## The Repository
-
-This repository ("`Code - OSS`") is where we (Microsoft) develop the [Visual Studio Code](https://code.visualstudio.com) product together with the community. Not only do we work on code and issues here, but we also publish our [roadmap](https://github.com/microsoft/vscode/wiki/Roadmap), [monthly iteration plans](https://github.com/microsoft/vscode/wiki/Iteration-Plans), and our [endgame plans](https://github.com/microsoft/vscode/wiki/Running-the-Endgame). This source code is available to everyone under the standard [MIT license](https://github.com/microsoft/vscode/blob/main/LICENSE.txt).
-
-## Visual Studio Code
+<h1 align="center">Vantrex IDE</h1>
 
 <p align="center">
-  <img alt="VS Code in action" src="https://github.com/user-attachments/assets/56af271c-949d-454c-a3ea-16188c063414">
+  A fast, minimal code editor for web development, with a pure black interface and one orange signal.<br />
+  Built on the open-source core of Visual Studio Code, with Vantrex account sign-in and settings sync.
 </p>
 
-[Visual Studio Code](https://code.visualstudio.com) is a distribution of the `Code - OSS` repository with Microsoft-specific customizations released under a traditional [Microsoft product license](https://code.visualstudio.com/License/).
+<p align="center">
+  <a href="https://github.com/nfworking/vtx-editor/actions/workflows/release.yml"><img alt="Release build" src="https://github.com/nfworking/vtx-editor/actions/workflows/release.yml/badge.svg" /></a>
+  <a href="LICENSE.txt"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
+</p>
 
-[Visual Studio Code](https://code.visualstudio.com) combines the simplicity of a code editor with what developers need for their core edit-build-debug cycle. It provides comprehensive code editing, navigation, and understanding support along with lightweight debugging, a rich extensibility model, and lightweight integration with existing tools.
+> **Status: early preview.** The editor is usable day to day, but builds are unsigned and the feature set is still small. Expect rough edges and
+> breaking changes between releases.
 
-Visual Studio Code is updated monthly with new features and bug fixes. You can download it for Windows, macOS, and Linux on the [Visual Studio Code website](https://code.visualstudio.com/Download). To get the latest releases every day, install the [Insiders build](https://code.visualstudio.com/insiders).
+## What is it
+
+Vantrex IDE is a desktop code editor for Windows, macOS and Linux. It keeps what makes VS Code good (the editor, the file explorer, search, Git,
+the integrated terminal, language servers) and changes how it looks and what it ships with.
+
+- **A calm, original interface.** Pure black canvas, hairline borders, square corners, Bricolage Grotesque for text and JetBrains Mono for code
+  and labels. The same design language as the Vantrex platform.
+- **A floating command bar.** One slim bar at the top of the window opens files by name, and `>` switches it to commands. The title bar,
+  layout buttons and Restricted Mode prompts are gone.
+- **A quiet side bar.** Explorer, Search and Source Control. Outline, Timeline, the secondary side bar and the other panels stay out of the way
+  until you ask for them.
+- **Vantrex account and settings sync.** Sign in with your Vantrex account (browser device login, no passwords in the editor). Settings,
+  keybindings, snippets, extensions, UI state and **profiles** then follow you between machines.
+- **Language support for the web.** TypeScript, JavaScript, HTML, CSS, JSON and Markdown work out of the box, including completion, hover,
+  diagnostics and formatting.
+- **No AI features and no telemetry.** The AI assistant, its extensions and its menus are removed or switched off, telemetry is off, and
+  automatic updates are off by default.
+
+## Download
+
+Get the latest build from the [**Releases**](https://github.com/nfworking/vtx-editor/releases) page.
+
+| Platform | File | Notes |
+| --- | --- | --- |
+| Windows (x64) | `Vantrex-<version>-win32-x64.zip` | Unzip anywhere and run `Vantrex.exe`. Windows SmartScreen may warn about an unknown publisher: choose **More info**, then **Run anyway**. |
+| macOS (Apple silicon) | `Vantrex-<version>-darwin-arm64.zip` | Unzip and move `Vantrex.app` to Applications. See the note below. |
+| macOS (Intel) | `Vantrex-<version>-darwin-x64.zip` | As above. |
+| Linux (x64) | `Vantrex-<version>-linux-x64.tar.gz` | Extract and run `./vantrex`. |
+
+Each release includes `SHA256SUMS.txt`. Verify a download with `shasum -a 256 <file>` (macOS, Linux) or `Get-FileHash <file>` (Windows).
+
+**macOS and unsigned builds.** The apps are not yet signed with an Apple Developer ID or notarised. If macOS says the app is damaged or from an
+unidentified developer, remove the download quarantine flag once:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/Vantrex.app
+```
+
+## Getting started
+
+1. Open a folder with **File > Open Folder**, or press `Ctrl+P` / `Cmd+P` to jump to a file.
+2. Click **Sign in** at the bottom left of the window (or run **Vantrex: Sign In** from the command bar). Your browser opens the Vantrex
+   dashboard, where you approve a short code.
+3. Open the account menu (your email, bottom left) and choose **Turn On Settings Sync**. Pick what to sync; your settings and profiles are then
+   kept in step across every machine you sign in on.
+
+Settings sync talks to `https://api.vantrex.cloud`. Both addresses are configurable:
+
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `vantrex.account.authUrl` | `https://app.vantrex.cloud` | The dashboard where you sign in |
+| `vantrex.account.apiUrl` | `https://api.vantrex.cloud` | The API used for account details |
+
+The settings sync endpoint itself is `configurationSync.store` in [`product.json`](product.json).
+
+## Build from source
+
+You need [Node.js](https://nodejs.org) (the version in [`.nvmrc`](.nvmrc)), [pnpm](https://pnpm.io) (the version in the `packageManager` field of
+`package.json`, available through `corepack enable`), Git and Python 3, plus the native build tools for your platform:
+
+- **Windows:** Visual Studio 2022 Build Tools with the *Desktop development with C++* workload.
+- **macOS:** Xcode command line tools (`xcode-select --install`).
+- **Linux:** `build-essential pkg-config libx11-dev libxkbfile-dev libsecret-1-dev libkrb5-dev`.
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run compile-client      # build the editor
+./scripts/code.sh            # run it (scripts\code.bat on Windows)
+```
+
+To produce a distributable build for the platform you are on (native modules are compiled for it, so you cannot build one platform's package on
+another):
+
+```bash
+pnpm run gulp vscode-<platform>-<arch>-min     # e.g. vscode-darwin-arm64-min, vscode-win32-x64-min, vscode-linux-x64-min
+```
+
+The result is written next to the repository as `VSCode-<platform>-<arch>`. The [release workflow](.github/workflows/release.yml) does exactly
+this on GitHub's hosted runners for every platform.
+
+### Releases
+
+Push a version tag to build every platform and publish a release:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Or run **Actions > Release > Run workflow** to build all platforms and download the archives from the run page.
+
+## What is different from VS Code
+
+Vantrex changes are kept small and in their own places, so tracking upstream stays practical:
+
+| Area | Where |
+| --- | --- |
+| Colour theme (Vantrex Dark) | [`extensions/theme-vantrex`](extensions/theme-vantrex) |
+| Fonts, shapes and type treatment | [`src/vs/workbench/browser/media/vantrex.css`](src/vs/workbench/browser/media/vantrex.css) |
+| Floating command bar, quiet defaults, side bar trim | [`src/vs/workbench/contrib/vantrex`](src/vs/workbench/contrib/vantrex) |
+| Account sign-in, account menu, sync authentication | [`extensions/vantrex-account`](extensions/vantrex-account) |
+| Product name, icons and the sync endpoint | [`product.json`](product.json), [`resources/`](resources) |
+| Simplified Welcome page | `src/vs/workbench/contrib/welcomeGettingStarted` |
+
+The AI assistant extension and its packaging steps were removed. Some inert upstream code for it remains in the source tree and is switched off by
+default (`chat.disableAIFeatures`).
 
 ## Contributing
 
-There are many ways in which you can participate in this project, for example:
+Issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first. For security problems, see [SECURITY.md](SECURITY.md) and
+please do not open a public issue.
 
-* [Submit bugs and feature requests](https://github.com/microsoft/vscode/issues), and help us verify them as they are checked in
-* Review [source code changes](https://github.com/microsoft/vscode/pulls)
-* Review the [documentation](https://github.com/microsoft/vscode-docs) and make pull requests for anything from typos to new content.
+## License and credits
 
-If you are interested in fixing issues and contributing directly to the codebase, please see the document [How to Contribute](https://github.com/microsoft/vscode/wiki/How-to-Contribute), which covers the following:
+Vantrex IDE is released under the [MIT License](LICENSE.txt). It is a derivative of
+[Code - OSS](https://github.com/microsoft/vscode), the open-source project behind Visual Studio Code, Copyright (c) Microsoft Corporation,
+also MIT licensed. Third-party components keep their own licenses: see [ThirdPartyNotices.txt](ThirdPartyNotices.txt).
 
-* [How to build and run from source](https://github.com/microsoft/vscode/wiki/How-to-Contribute)
-* [The development workflow, including debugging and running tests](https://github.com/microsoft/vscode/wiki/How-to-Contribute#debugging)
-* [Coding guidelines](https://github.com/microsoft/vscode/wiki/Coding-Guidelines)
-* [Submitting pull requests](https://github.com/microsoft/vscode/wiki/How-to-Contribute#pull-requests)
-* [Finding an issue to work on](https://github.com/microsoft/vscode/wiki/How-to-Contribute#where-to-contribute)
-* [Contributing to translations](https://aka.ms/vscodeloc)
-
-## Feedback
-
-* Ask a question on [Stack Overflow](https://stackoverflow.com/questions/tagged/vscode)
-* [Request a new feature](CONTRIBUTING.md)
-* Upvote [popular feature requests](https://github.com/microsoft/vscode/issues?q=is%3Aopen+is%3Aissue+label%3Afeature-request+sort%3Areactions-%2B1-desc)
-* [File an issue](https://github.com/microsoft/vscode/issues)
-* Connect with the extension author community on [GitHub Discussions](https://github.com/microsoft/vscode-discussions/discussions) or [Slack](https://aka.ms/vscode-dev-community)
-* Follow [@code](https://x.com/code) and let us know what you think!
-
-See our [wiki](https://github.com/microsoft/vscode/wiki/Feedback-Channels) for a description of each of these channels and information on some other available community-driven channels.
-
-## Related Projects
-
-Many of the core components and extensions to VS Code live in their own repositories on GitHub. For example, the [node debug adapter](https://github.com/microsoft/vscode-node-debug) and the [mono debug adapter](https://github.com/microsoft/vscode-mono-debug) repositories are separate from each other. For a complete list, please visit the [Related Projects](https://github.com/microsoft/vscode/wiki/Related-Projects) page on our [wiki](https://github.com/microsoft/vscode/wiki).
-
-## Bundled Extensions
-
-VS Code includes a set of built-in extensions located in the [extensions](extensions) folder, including grammars and snippets for many languages. Extensions that provide rich language support (inline suggestions, Go to Definition) for a language have the suffix `language-features`. For example, the `json` extension provides coloring for `JSON` and the `json-language-features` extension provides rich language support for `JSON`.
-
-## Development Container
-
-This repository includes a Visual Studio Code Dev Containers / GitHub Codespaces development container.
-
-* For [Dev Containers](https://aka.ms/vscode-remote/download/containers), use the **Dev Containers: Clone Repository in Container Volume...** command, which creates a Docker volume for better disk I/O on macOS and Windows.
-  * If you already have VS Code and Docker installed, you can also click [here](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/microsoft/vscode) to get started. This will cause VS Code to automatically install the Dev Containers extension if needed, clone the source code into a container volume, and spin up a dev container for use.
-
-* For Codespaces, install the [GitHub Codespaces](https://marketplace.visualstudio.com/items?itemName=GitHub.codespaces) extension in VS Code, and use the **Codespaces: Create New Codespace** command.
-
-Docker / the Codespace should have at least **4 cores and 6 GB of RAM (8 GB recommended)** to run a full build. See the [development container README](.devcontainer/README.md) for more information.
-
-## Code of Conduct
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-## License
-
-Copyright (c) Microsoft Corporation. All rights reserved.
-
-Licensed under the [MIT](LICENSE.txt) license.
+Vantrex IDE is not affiliated with, endorsed by or sponsored by Microsoft. "Visual Studio Code" and "VS Code" are trademarks of Microsoft
+Corporation. Bricolage Grotesque and JetBrains Mono are distributed under the SIL Open Font License.

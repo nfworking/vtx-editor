@@ -1,0 +1,70 @@
+/*---------------------------------------------------------------------------------------------
+ *  Vantrex floating command bar
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-workbench .vtx-commandbar {
+	position: absolute;
+	top: 5px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 1900; /* above the title bar, below the quick input it opens */
+	width: min(440px, 46vw);
+	height: 24px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 0 10px;
+	margin: 0;
+	background: #0a0a0a;
+	color: #8c8c8c;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 0;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.55);
+	font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+	font-size: 11px;
+	line-height: 1;
+	text-align: left;
+	cursor: pointer;
+	-webkit-app-region: no-drag;
+	transition: border-color 120ms ease, color 120ms ease, background-color 120ms ease;
+}
+
+.monaco-workbench .vtx-commandbar:hover {
+	border-color: rgba(255, 90, 63, 0.7);
+	color: #f2f2f2;
+	background: #0f0f0f;
+}
+
+.monaco-workbench .vtx-commandbar:focus-visible {
+	outline: 1px solid #ff5a3f;
+	outline-offset: 1px;
+}
+
+.monaco-workbench .vtx-commandbar-dot {
+	flex: none;
+	width: 6px;
+	height: 6px;
+	background: #ff5a3f;
+	border-radius: 50%;
+}
+
+.monaco-workbench .vtx-commandbar-text {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.monaco-workbench .vtx-commandbar-keys {
+	flex: none;
+	color: #5a5a5a;
+	letter-spacing: 0.04em;
+}
+
+/* The quick input is the same bar, opened: a floating, square panel with an orange hairline on top. */
+.monaco-workbench .quick-input-widget {
+	top: 40px !important;
+	width: min(640px, 80vw) !important;
+	border-top: 1px solid #ff5a3f !important;
+}

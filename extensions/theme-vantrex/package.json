@@ -1,0 +1,28 @@
+{
+  "name": "theme-vantrex",
+  "displayName": "Vantrex Theme",
+  "description": "The Vantrex look: pure black with an orange signal",
+  "categories": [
+    "Themes"
+  ],
+  "version": "1.0.0",
+  "publisher": "vantrex",
+  "license": "MIT",
+  "engines": {
+    "vscode": "*"
+  },
+  "contributes": {
+    "themes": [
+      {
+        "id": "Vantrex Dark",
+        "label": "Vantrex Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/vantrex-dark.json"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/vscode.git"
+  }
+}

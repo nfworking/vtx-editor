@@ -1,0 +1,67 @@
+{
+  "name": "vantrex-account",
+  "displayName": "Vantrex Account",
+  "description": "Sign in to Vantrex from the IDE: the account menu, and the sign-in that Settings Sync uses",
+  "version": "1.0.0",
+  "publisher": "vantrex",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "authentication": [
+      {
+        "id": "vantrex",
+        "label": "Vantrex"
+      }
+    ],
+    "commands": [
+      {
+        "command": "vantrex.account.signIn",
+        "title": "Sign In",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.account.signOut",
+        "title": "Sign Out",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.account.menu",
+        "title": "Account",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.account.manage",
+        "title": "Manage Account in the Dashboard",
+        "category": "Vantrex"
+      }
+    ],
+    "configuration": {
+      "title": "Vantrex Account",
+      "properties": {
+        "vantrex.account.authUrl": {
+          "type": "string",
+          "default": "https://app.vantrex.cloud",
+          "markdownDescription": "Address of the Vantrex dashboard, where you sign in. For a local copy of the platform use `http://localhost:3000`."
+        },
+        "vantrex.account.apiUrl": {
+          "type": "string",
+          "default": "https://api.vantrex.cloud",
+          "markdownDescription": "Address of the Vantrex API. Settings Sync itself uses the address in the product configuration (`https://api.vantrex.cloud/sync`); this one is for the account details."
+        }
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/vscode.git"
+  }
+}

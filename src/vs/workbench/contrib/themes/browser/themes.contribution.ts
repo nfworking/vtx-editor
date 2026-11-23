@@ -692,7 +692,6 @@ function isItem(i: QuickPickInput<ThemeItem>): i is ThemeItem {
 }
 
 const defaultThemeDescriptions: Record<string, string> = {
-	[ThemeSettingDefaults.COLOR_THEME_LIGHT]: localize('defaultLight', "Default Light"),
 	[ThemeSettingDefaults.COLOR_THEME_DARK]: localize('defaultDark', "Default Dark"),
 };
 

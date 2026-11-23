@@ -1,0 +1,253 @@
+/*---------------------------------------------------------------------------------------------
+ *  Vantrex: the workbench look. Pure black canvas, 1px hairlines, square corners, one orange signal.
+ *  Mirrors the platform's "Vantrex Modern" design (Bricolage Grotesque for text, JetBrains Mono for labels and code).
+ *  Colours come from the Vantrex Dark theme (extensions/theme-vantrex); this file only holds what a theme cannot say:
+ *  fonts, shape, type treatment and a few details.
+ *--------------------------------------------------------------------------------------------*/
+
+@font-face {
+	font-family: 'Bricolage Grotesque';
+	src: url('./fonts/bricolage-grotesque-200_800-normal.woff2') format('woff2');
+	font-weight: 200 800;
+	font-style: normal;
+	font-display: block;
+}
+
+@font-face {
+	font-family: 'JetBrains Mono';
+	src: url('./fonts/jetbrains-mono-400_500-normal.woff2') format('woff2');
+	font-weight: 400 500;
+	font-style: normal;
+	font-display: block;
+}
+
+.monaco-workbench {
+	--vtx-accent: #ff5a3f;
+	--vtx-accent-soft: #ff7a60;
+	--vtx-hairline: rgba(255, 255, 255, 0.08);
+	--vtx-hairline-strong: rgba(255, 255, 255, 0.12);
+	--vtx-font-ui: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	--vtx-font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+
+/* ---- type ---- */
+
+:root .monaco-workbench.monaco-workbench,
+:root .monaco-workbench.monaco-workbench .monaco-action-bar,
+:root .monaco-workbench.monaco-workbench .monaco-menu,
+:root .monaco-workbench.monaco-workbench .monaco-hover,
+:root .monaco-workbench.monaco-workbench .quick-input-widget,
+:root .monaco-workbench.monaco-workbench .monaco-inputbox,
+:root .monaco-workbench.monaco-workbench .monaco-button,
+:root .monaco-workbench.monaco-workbench .notifications-toasts,
+:root .monaco-workbench.monaco-workbench .notifications-center {
+	font-family: var(--vtx-font-ui);
+	letter-spacing: -0.003em;
+}
+
+/* Labels that name a place or a state are small mono caps, like the platform's section labels. */
+.monaco-workbench .part.sidebar > .title .title-label h2,
+.monaco-workbench .part.auxiliarybar > .title .title-label h2,
+.monaco-workbench .part.panel > .title .monaco-action-bar .action-label,
+.monaco-workbench .pane-header,
+.monaco-workbench .pane-header .title,
+.monaco-workbench .part.statusbar,
+.monaco-workbench .part.statusbar .statusbar-item,
+.monaco-workbench .part.statusbar .statusbar-item a {
+	font-family: var(--vtx-font-mono);
+}
+
+.monaco-workbench .part.sidebar > .title .title-label h2,
+.monaco-workbench .part.auxiliarybar > .title .title-label h2,
+.monaco-workbench .part.panel > .title .monaco-action-bar .action-label,
+.monaco-workbench .pane-header .title {
+	font-size: 10.5px;
+	font-weight: 500;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+}
+
+.monaco-workbench .part.statusbar,
+.monaco-workbench .part.statusbar .statusbar-item,
+.monaco-workbench .part.statusbar .statusbar-item a {
+	font-size: 11px;
+	letter-spacing: 0;
+}
+
+.monaco-workbench .part.editor > .content .editor-group-container > .title .tabs-container > .tab,
+.monaco-workbench .part.editor > .content .editor-group-container > .title .tabs-container > .tab .monaco-icon-label {
+	font-family: var(--vtx-font-mono);
+	font-size: 12px;
+	letter-spacing: 0;
+}
+
+.monaco-workbench .breadcrumbs-control,
+.monaco-workbench .breadcrumbs-control .monaco-icon-label {
+	font-family: var(--vtx-font-mono);
+	font-size: 11px;
+}
+
+/* ---- shape: no rounded corners anywhere that the platform's design squares off ---- */
+
+.monaco-workbench .monaco-button,
+.monaco-workbench .monaco-button-dropdown,
+.monaco-workbench .monaco-inputbox,
+.monaco-workbench .monaco-inputbox > .ibwrapper,
+.monaco-workbench .monaco-select-box,
+.monaco-workbench .monaco-dropdown,
+.monaco-workbench .monaco-dropdown-with-primary,
+.monaco-workbench .monaco-menu,
+.monaco-workbench .monaco-menu .monaco-action-bar .action-item .action-menu-item,
+.monaco-workbench .context-view .monaco-menu,
+.monaco-workbench .quick-input-widget,
+.monaco-workbench .quick-input-list .monaco-list-row,
+.monaco-workbench .monaco-hover,
+.monaco-workbench .notification-toast,
+.monaco-workbench .notifications-center,
+.monaco-workbench .notification-list-item,
+.monaco-workbench .editor-widget,
+.monaco-workbench .monaco-editor .suggest-widget,
+.monaco-workbench .monaco-editor .find-widget,
+.monaco-workbench .monaco-editor .monaco-hover,
+.monaco-workbench .monaco-editor .parameter-hints-widget,
+.monaco-workbench .monaco-custom-toggle,
+.monaco-workbench .action-item .action-label,
+.monaco-workbench .monaco-action-bar .action-item .action-label,
+.monaco-workbench .monaco-list-row,
+.monaco-workbench .statusbar-item,
+.monaco-workbench .dialog-box,
+.monaco-workbench .monaco-dialog-box,
+.monaco-workbench .settings-editor .setting-item,
+.monaco-workbench .keybinding-label .monaco-keybinding-key,
+.monaco-workbench .monaco-keybinding > .monaco-keybinding-key {
+	border-radius: 0 !important;
+}
+
+/* ---- surfaces: flat, hairline edge, no shadow except where something floats over content ---- */
+
+.monaco-workbench .monaco-menu,
+.monaco-workbench .quick-input-widget,
+.monaco-workbench .monaco-hover,
+.monaco-workbench .notification-toast,
+.monaco-workbench .monaco-editor .suggest-widget,
+.monaco-workbench .monaco-editor .find-widget,
+.monaco-workbench .dialog-box,
+.monaco-workbench .monaco-dialog-box {
+	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--vtx-hairline-strong) !important;
+	border: none !important;
+}
+
+.monaco-workbench .quick-input-widget {
+	background-color: #0a0a0a;
+}
+
+/* ---- details ---- */
+
+/* The active row of any list or tree carries a short orange bar, the way the platform marks the current page. */
+.monaco-workbench .monaco-list.element-focused .monaco-list-row.selected,
+.monaco-workbench .monaco-list:focus .monaco-list-row.selected,
+.monaco-workbench .monaco-list .monaco-list-row.selected {
+	box-shadow: inset 2px 0 0 var(--vtx-accent);
+}
+
+/* Primary buttons: orange fill, dark ink, and the platform's fill sweep on hover. */
+.monaco-workbench .monaco-button:not(.secondary) {
+	font-weight: 500;
+	text-transform: none;
+}
+
+/* Activity bar: icons sit on the black canvas; the active one gets the accent edge (colour from the theme). */
+.monaco-workbench .part.activitybar > .content .monaco-action-bar .action-item .action-label {
+	border-radius: 0 !important;
+}
+
+/* Tabs: a hairline between tabs, the active one is marked with the accent on top (theme). */
+.monaco-workbench .part.editor > .content .editor-group-container > .title .tabs-container > .tab {
+	border-right: 1px solid var(--vtx-hairline);
+}
+
+/* Thin, quiet scrollbars. */
+.monaco-workbench .monaco-scrollable-element > .scrollbar > .slider {
+	border-radius: 0 !important;
+}
+
+/* Selection colour inside the workbench chrome. */
+.monaco-workbench ::selection {
+	background: rgba(255, 90, 63, 0.35);
+}
+
+/* Editor: the line the cursor is on is marked with a faint orange rule rather than a block. */
+.monaco-editor .current-line {
+	border: none !important;
+}
+
+/* ---- title bar: only the window controls; the floating command bar does the rest ---- */
+
+.monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center {
+	display: none;
+}
+
+/* ---- activity bar: files, search and source control (and the gear). Everything else is reachable from the command bar. ---- */
+
+.monaco-workbench .part.activitybar .action-item:has(> .action-label.codicon-run-view-icon),
+.monaco-workbench .part.activitybar .action-item:has(> .action-label.codicon-extensions-view-icon) {
+	display: none !important;
+}
+
+/* ---- welcome page: a quiet start screen ---- */
+
+.monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlideCategories .header h1.product-name {
+	font-family: var(--vtx-font-ui);
+	font-weight: 700;
+	font-size: 56px;
+	letter-spacing: -0.035em;
+	line-height: 1;
+	text-transform: none;
+	color: #f2f2f2;
+}
+
+.monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlideCategories .header .subtitle {
+	font-family: var(--vtx-font-mono);
+	font-size: 12px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #6b6b6b;
+	margin-top: 14px;
+}
+
+.monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlideCategories .index-list h2 {
+	font-family: var(--vtx-font-mono);
+	font-size: 10.5px;
+	font-weight: 500;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: #6b6b6b;
+}
+
+.monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlideCategories .index-list .button-link,
+.monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlideCategories .index-list a {
+	color: #f2f2f2;
+}
+
+.monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlideCategories .index-list .button-link:hover,
+.monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlideCategories .index-list a:hover {
+	color: #ff5a3f;
+}
+
+.monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlideCategories .index-list .codicon {
+	color: #ff5a3f;
+}
+
+.monaco-workbench .part.editor > .content .gettingStartedContainer .footer .showOnStartup,
+.monaco-workbench .part.editor > .content .gettingStartedContainer .footer .showOnStartup label {
+	font-family: var(--vtx-font-mono);
+	font-size: 11px;
+	color: #5a5a5a;
+}
+
+/* ---- chrome that a minimal Vantrex does not need yet ---- */
+
+/* The remote indicator at the far left of the status bar (remote connections are not part of this build yet). */
+.monaco-workbench .part.statusbar #status\.host {
+	display: none;
+}

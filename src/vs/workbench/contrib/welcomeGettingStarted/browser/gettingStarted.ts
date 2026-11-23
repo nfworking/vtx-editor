@@ -941,7 +941,7 @@ export class GettingStartedPage extends EditorPane {
 
 		const header = $('.header', {},
 			$('h1.product-name.caption', {}, this.productService.nameLong),
-			$('p.subtitle.description', {}, localize({ key: 'gettingStarted.editingEvolved', comment: ['Shown as subtitle on the Welcome page.'] }, "Editing evolved"))
+			$('p.subtitle.description', {}, localize({ key: 'gettingStarted.editingEvolved', comment: ['Shown as subtitle on the Welcome page.'] }, "Build, commit and ship."))
 		);
 
 		const leftColumn = $('.categories-column.categories-column-left', {},);
@@ -965,7 +965,7 @@ export class GettingStartedPage extends EditorPane {
 			this.defaultAccountService,
 		);
 		this.categoriesSlideDisposables.add(agentsBanner.disposables);
-		footerChildren.push(agentsBanner.element);
+		// Vantrex: no agents promotion in the footer.
 		footerChildren.push($('p.showOnStartup', {},
 			showOnStartupCheckbox.domNode,
 			showOnStartupLabel,
@@ -976,8 +976,9 @@ export class GettingStartedPage extends EditorPane {
 		const graphic = derived(reader => agentsBanner.visible.read(reader) ? agentsWindowGraphic.shownDesign.read(reader) : undefined);
 		const layoutAgentsWindowGraphic = () => this.fitAgentsWindowGraphic(categoriesContainer, graphic.get() !== undefined);
 
+		const showWalkthroughs = () => false; // Vantrex: the Welcome page has no walkthroughs
 		const layoutLists = () => {
-			if (gettingStartedList.itemCount) {
+			if (showWalkthroughs() && gettingStartedList.itemCount) {
 				this.container.classList.remove('noWalkthroughs');
 				reset(rightColumn, gettingStartedList.getDomElement());
 			}

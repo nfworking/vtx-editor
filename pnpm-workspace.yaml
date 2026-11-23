@@ -5,8 +5,6 @@ packages:
   - .vscode/extensions/vscode-pr-pinger
   - extensions
   - extensions/configuration-editing
-  - extensions/copilot
-  - extensions/copilot/chat-lib
   - extensions/css-language-features
   - extensions/css-language-features/server
   - extensions/debug-auto-launch
@@ -29,7 +27,6 @@ packages:
   - extensions/markdown-language-features/test-workspace/checkbox-count-extension
   - extensions/markdown-math
   - extensions/merge-conflict
-  - extensions/mermaid-markdown-features
   - extensions/microsoft-authentication
   - extensions/notebook-renderers
   - extensions/npm

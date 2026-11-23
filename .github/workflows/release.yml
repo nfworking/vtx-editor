@@ -1,0 +1,156 @@
+name: Release
+
+# Builds the Vantrex IDE for Windows, macOS and Linux.
+#
+# - Push a tag such as v0.1.0 to build everything and publish a GitHub Release with the archives and checksums.
+# - Run it by hand (Actions > Release > Run workflow) to build all platforms and download the archives from the run page;
+#   tick "Publish a draft release" to also attach them to a draft release.
+#
+# The native parts of the editor (terminal, keymap, file watching) are compiled on each platform's own runner, so a build for one
+# platform cannot be made from another.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      draft_release:
+        description: Publish a draft release with the archives
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            os: windows-2022
+            platform: win32
+            arch: x64
+          - name: macOS arm64 (Apple silicon)
+            os: macos-14
+            platform: darwin
+            arch: arm64
+          - name: macOS x64 (Intel)
+            os: macos-15-intel
+            platform: darwin
+            arch: x64
+          - name: Linux x64
+            os: ubuntu-22.04
+            platform: linux
+            arch: x64
+
+    steps:
+      - name: Allow long paths (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: git config --system core.longpaths true
+
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system packages (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config libx11-dev libxkbfile-dev libsecret-1-dev libkrb5-dev
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run gulp vscode-${{ matrix.platform }}-${{ matrix.arch }}-min
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then VERSION="${GITHUB_REF_NAME#v}"; else VERSION="dev-${GITHUB_SHA::7}"; fi
+          OUT="$(cd .. && pwd)/VSCode-${{ matrix.platform }}-${{ matrix.arch }}"
+          NAME="Vantrex-${VERSION}-${{ matrix.platform }}-${{ matrix.arch }}"
+          mkdir -p dist
+          test -d "$OUT" || { echo "build output not found: $OUT"; exit 1; }
+          # Source maps (about 300 MB) and the unused AI runtime are not needed to run the editor.
+          find "$OUT" -type d -path "*/node_modules.asar.unpacked/@microsoft/copilot-sdk-*" -prune -exec rm -rf {} +
+          find "$OUT" -type f -name "*.js.map" -path "*/app/out/*" -delete
+          case "${{ matrix.platform }}" in
+            win32)
+              test -f "$OUT/Vantrex.exe" || { echo "Vantrex.exe is missing from the build"; ls "$OUT"; exit 1; }
+              7z a -tzip -mx=5 "dist/${NAME}.zip" "$OUT/*"
+              ;;
+            darwin)
+              APP="$OUT/Vantrex.app"
+              test -d "$APP" || { echo "Vantrex.app is missing from the build"; ls "$OUT"; exit 1; }
+              # Not notarised: an ad-hoc signature is the least macOS accepts to run the app on Apple silicon.
+              codesign --force --deep --sign - "$APP"
+              ditto -c -k --sequesterRsrc --keepParent "$APP" "dist/${NAME}.zip"
+              ;;
+            linux)
+              test -x "$OUT/vantrex" || { echo "the vantrex launcher is missing from the build"; ls "$OUT"; exit 1; }
+              tar -C "$(dirname "$OUT")" -czf "dist/${NAME}.tar.gz" "$(basename "$OUT")"
+              ;;
+          esac
+          ls -lh dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vantrex-${{ matrix.platform }}-${{ matrix.arch }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v') || inputs.draft_release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: vantrex-*
+          merge-multiple: true
+
+      - name: Checksums
+        working-directory: artifacts
+        run: sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            gh release create "$GITHUB_REF_NAME" artifacts/* --repo "$REPO" --title "Vantrex IDE ${GITHUB_REF_NAME}" --generate-notes
+          else
+            gh release create "draft-${GITHUB_RUN_NUMBER}" artifacts/* --repo "$REPO" --title "Vantrex IDE (draft ${GITHUB_RUN_NUMBER})" \
+              --target "$GITHUB_SHA" --draft --generate-notes
+          fi

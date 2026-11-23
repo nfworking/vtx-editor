@@ -78,6 +78,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential pkg-config libx11-dev libxkbfile-dev libsecret-1-dev libkrb5-dev
 
+      # The Windows packaging step checks and strips existing signatures on bundled binaries with signtool.exe, which ships with
+      # the Windows SDK on the runner but is not on PATH.
+      - name: Put signtool on PATH (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $tool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" |
+            Sort-Object { [version]($_.Directory.Parent.Name) } | Select-Object -Last 1
+          if (-not $tool) { throw 'signtool.exe was not found in the Windows SDK on this runner' }
+          Add-Content -Path $env:GITHUB_PATH -Value $tool.DirectoryName
+          Write-Host "signtool: $($tool.FullName)"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

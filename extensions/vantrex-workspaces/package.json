@@ -1,0 +1,49 @@
+{
+  "name": "vantrex-workspaces",
+  "displayName": "Vantrex Workspaces",
+  "description": "Open and develop in a Vantrex workspace from the IDE: files, terminal, live preview and commits",
+  "version": "1.0.0",
+  "publisher": "vantrex",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onFileSystem:vtxws"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      { "command": "vantrex.workspace.open", "title": "Open Workspace...", "category": "Vantrex" },
+      { "command": "vantrex.workspace.menu", "title": "Workspace Menu", "category": "Vantrex" },
+      { "command": "vantrex.workspace.preview", "title": "Open Preview", "category": "Vantrex" },
+      { "command": "vantrex.workspace.terminal", "title": "Open Workspace Terminal", "category": "Vantrex" },
+      { "command": "vantrex.workspace.commit", "title": "Commit Changes...", "category": "Vantrex" },
+      { "command": "vantrex.workspace.runTask", "title": "Run Task...", "category": "Vantrex" },
+      { "command": "vantrex.workspace.startDev", "title": "Start Dev Server", "category": "Vantrex" },
+      { "command": "vantrex.workspace.stopDev", "title": "Stop Dev Server", "category": "Vantrex" },
+      { "command": "vantrex.workspace.syncEnv", "title": "Sync Development Environment Variables", "category": "Vantrex" },
+      { "command": "vantrex.workspace.stop", "title": "Stop Workspace", "category": "Vantrex" },
+      { "command": "vantrex.workspace.delete", "title": "Delete Workspace...", "category": "Vantrex" },
+      { "command": "vantrex.workspace.dashboard", "title": "Open Project in the Dashboard", "category": "Vantrex" }
+    ],
+    "configuration": {
+      "title": "Vantrex Workspaces",
+      "properties": {
+        "vantrex.workspace.autoPreview": {
+          "type": "boolean",
+          "default": true,
+          "description": "Open the live preview beside the editor once the dev server is up."
+        }
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nfworking/vtx-editor.git"
+  }
+}

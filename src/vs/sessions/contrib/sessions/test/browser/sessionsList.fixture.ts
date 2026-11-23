@@ -1032,7 +1032,7 @@ export default defineThemedFixtureGroup({ path: 'sessions/' }, {
 		view: { compact: true, width: 380 },
 	}, {
 		labels: { kind: 'screenshot', blocksCi: true },
-		additionalThemes: ['light2026', 'quietLight', 'solarizedLight', 'darkModern', 'darkHighContrast', 'lightHighContrast'],
+		additionalThemes: ['light2026', 'darkModern', 'darkHighContrast', 'lightHighContrast'],
 		expectedVisualDescriptions: ['A compact vscode workspace section shows three sessions. The first session expands with a truncated input-needed callout but no button. The second expands with a terminal-command approval callout and an Allow button. The completed third session remains a single compact title row. In high contrast themes, needs-input rows have a separate straight yellow left-edge marker, inset from the rounded corners, instead of a tinted background.'],
 	}),
 	SessionsList_CompactSessionRename: defineSessionsListFixture({

@@ -10,7 +10,6 @@ packages:
   - extensions/debug-auto-launch
   - extensions/debug-server-ready
   - extensions/emmet
-  - extensions/extension-editing
   - extensions/git
   - extensions/git-base
   - extensions/github
@@ -27,7 +26,6 @@ packages:
   - extensions/markdown-language-features/test-workspace/checkbox-count-extension
   - extensions/markdown-math
   - extensions/merge-conflict
-  - extensions/microsoft-authentication
   - extensions/notebook-renderers
   - extensions/npm
   - extensions/php-language-features
@@ -35,12 +33,7 @@ packages:
   - extensions/search-result
   - extensions/simple-browser
   - extensions/terminal-suggest
-  - extensions/tunnel-forwarding
   - extensions/typescript-language-features
-  - extensions/vscode-api-tests
-  - extensions/vscode-colorize-perf-tests
-  - extensions/vscode-colorize-tests
-  - extensions/vscode-test-resolver
   - scripts
   - src/vs/sessions/test/e2e
   - test/automation
@@ -138,7 +131,6 @@ overrides:
   '@vscode/web-editors@0.0.2-76>@vscode/hubrpc': 0.0.2-20
   '@vscode/web-editors@0.0.2-104>@vscode/hubrpc': 0.0.2-54
   '@vscode/web-editors@0.0.2-41>@vscode/hubrpc': 0.0.2-15
-  '@azure/msal-node-extensions@5.3.2>keytar': file:extensions/microsoft-authentication/packageMocks/keytar
 # @vscode/extension-telemetry requires @microsoft/applicationinsights-common without declaring it. Each
 # version gets the one of its @microsoft/applicationinsights-web-basic, which the extensions bundle
 # anyway, instead of the one that pnpm happens to hoist for the whole workspace.

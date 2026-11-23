@@ -441,6 +441,9 @@ export class Menubar extends Disposable {
 		const actions = [about];
 		actions.push(...checkForUpdates);
 
+		// Vantrex: develop inside a platform workspace (see extensions/vantrex-workspaces).
+		actions.push(__separator__(), this.createMenuItem(nls.localize('miOpenVantrexWorkspace', "Open Vantrex Workspace..."), 'vantrex.workspace.open'));
+
 		if (preferences) {
 			actions.push(...[
 				__separator__(),

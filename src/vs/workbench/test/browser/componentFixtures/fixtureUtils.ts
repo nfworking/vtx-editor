@@ -282,11 +282,6 @@ import light_2026 from '../../../../../../extensions/theme-defaults/themes/2026-
 import light_modern from '../../../../../../extensions/theme-defaults/themes/light_modern.json' with { type: 'json' };
 import light_plus from '../../../../../../extensions/theme-defaults/themes/light_plus.json' with { type: 'json' };
 import light_vs from '../../../../../../extensions/theme-defaults/themes/light_vs.json' with { type: 'json' };
-import abyss from '../../../../../../extensions/theme-abyss/themes/abyss-color-theme.json' with { type: 'json' };
-import monokai from '../../../../../../extensions/theme-monokai/themes/monokai-color-theme.json' with { type: 'json' };
-import quietlight from '../../../../../../extensions/theme-quietlight/themes/quietlight-color-theme.json' with { type: 'json' };
-import solarized_dark from '../../../../../../extensions/theme-solarized-dark/themes/solarized-dark-color-theme.json' with { type: 'json' };
-import solarized_light from '../../../../../../extensions/theme-solarized-light/themes/solarized-light-color-theme.json' with { type: 'json' };
 import { mainWindow } from '../../../../base/browser/window.js';
 /* eslint-enable local/code-import-patterns */
 
@@ -315,11 +310,6 @@ const themeJsonModules: Record<string, string> = {
 	'/extensions/theme-defaults/themes/light_modern.json': toThemeJsonText(light_modern),
 	'/extensions/theme-defaults/themes/light_plus.json': toThemeJsonText(light_plus),
 	'/extensions/theme-defaults/themes/light_vs.json': toThemeJsonText(light_vs),
-	'/extensions/theme-abyss/themes/abyss-color-theme.json': toThemeJsonText(abyss),
-	'/extensions/theme-monokai/themes/monokai-color-theme.json': toThemeJsonText(monokai),
-	'/extensions/theme-quietlight/themes/quietlight-color-theme.json': toThemeJsonText(quietlight),
-	'/extensions/theme-solarized-dark/themes/solarized-dark-color-theme.json': toThemeJsonText(solarized_dark),
-	'/extensions/theme-solarized-light/themes/solarized-light-color-theme.json': toThemeJsonText(solarized_light),
 };
 
 const fixtureExtensionResourceLoaderService = new class implements IExtensionResourceLoaderService {
@@ -394,11 +384,6 @@ const additionalThemeVariants = {
 	visualStudioLight: { label: 'VisualStudioLight', background: 'light', theme: createBuiltInTheme('/extensions/theme-defaults/themes/light_vs.json', ThemeTypeSelector.VS) },
 	darkHighContrast: { label: 'DarkHighContrast', background: 'dark', theme: darkHighContrastTheme },
 	lightHighContrast: { label: 'LightHighContrast', background: 'light', theme: lightHighContrastTheme },
-	abyss: { label: 'Abyss', background: 'dark', theme: createBuiltInTheme('/extensions/theme-abyss/themes/abyss-color-theme.json', ThemeTypeSelector.VS_DARK, 'theme-abyss') },
-	monokai: { label: 'Monokai', background: 'dark', theme: createBuiltInTheme('/extensions/theme-monokai/themes/monokai-color-theme.json', ThemeTypeSelector.VS_DARK, 'theme-monokai') },
-	quietLight: { label: 'QuietLight', background: 'light', theme: createBuiltInTheme('/extensions/theme-quietlight/themes/quietlight-color-theme.json', ThemeTypeSelector.VS, 'theme-quietlight') },
-	solarizedDark: { label: 'SolarizedDark', background: 'dark', theme: createBuiltInTheme('/extensions/theme-solarized-dark/themes/solarized-dark-color-theme.json', ThemeTypeSelector.VS_DARK, 'theme-solarized-dark') },
-	solarizedLight: { label: 'SolarizedLight', background: 'light', theme: createBuiltInTheme('/extensions/theme-solarized-light/themes/solarized-light-color-theme.json', ThemeTypeSelector.VS, 'theme-solarized-light') },
 } as const satisfies Record<string, ComponentFixtureThemeVariant>;
 export type ComponentFixtureAdditionalTheme = keyof typeof additionalThemeVariants;
 

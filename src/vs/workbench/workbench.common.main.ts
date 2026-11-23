@@ -509,5 +509,6 @@ import './contrib/opener/browser/opener.contribution.js';
 import './contrib/vantrex/browser/vantrexDefaults.js';
 import './contrib/vantrex/browser/commandBar.js';
 import './contrib/vantrex/browser/sidebarTrim.js';
+import './contrib/vantrex/browser/workspaceMenu.js';
 
 //#endregion

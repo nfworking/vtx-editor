@@ -18,14 +18,18 @@
 Vantrex IDE is a desktop code editor for Windows, macOS and Linux. It keeps what makes VS Code good (the editor, the file explorer, search, Git,
 the integrated terminal, language servers) and changes how it looks and what it ships with.
 
-- **A calm, original interface.** Pure black canvas, hairline borders, square corners, Bricolage Grotesque for text and JetBrains Mono for code
-  and labels. The same design language as the Vantrex platform.
+- **A calm, original interface.** Pure black canvas, floating glass panels with continuous rounded corners, pill controls and spring motion, the system
+  font (SF on macOS) for the interface and JetBrains Mono for code. The same design language as the Vantrex platform.
 - **A floating command bar.** One slim bar at the top of the window opens files by name, and `>` switches it to commands. The title bar,
   layout buttons and Restricted Mode prompts are gone.
 - **A quiet side bar.** Explorer, Search and Source Control. Outline, Timeline, the secondary side bar and the other panels stay out of the way
   until you ask for them.
 - **Vantrex account and settings sync.** Sign in with your Vantrex account (browser device login, no passwords in the editor). Settings,
   keybindings, snippets, extensions, UI state and **profiles** then follow you between machines.
+- **Vantrex workspaces.** **Vantrex > Open Vantrex Workspace** (the application menu on macOS, File menu elsewhere) lists your GitHub-linked
+  projects and branches, starts the branch's workspace on the platform and opens its files in the explorer. Edits save straight into the
+  workspace, the terminal runs the allowed package manager tasks, the dev server's output has its own panel, a preview browser opens beside
+  the editor, and **Commit Changes** sends your edits to GitHub as one commit (optionally on a new branch with a pull request).
 - **Language support for the web.** TypeScript, JavaScript, HTML, CSS, JSON and Markdown work out of the box, including completion, hover,
   diagnostics and formatting.
 - **No AI features and no telemetry.** The AI assistant, its extensions and its menus are removed or switched off, telemetry is off, and
@@ -114,6 +118,7 @@ Vantrex changes are kept small and in their own places, so tracking upstream sta
 | Fonts, shapes and type treatment | [`src/vs/workbench/browser/media/vantrex.css`](src/vs/workbench/browser/media/vantrex.css) |
 | Floating command bar, quiet defaults, side bar trim | [`src/vs/workbench/contrib/vantrex`](src/vs/workbench/contrib/vantrex) |
 | Account sign-in, account menu, sync authentication | [`extensions/vantrex-account`](extensions/vantrex-account) |
+| Workspaces: files, terminal, preview, commit | [`extensions/vantrex-workspaces`](extensions/vantrex-workspaces) |
 | Product name, icons and the sync endpoint | [`product.json`](product.json), [`resources/`](resources) |
 | Simplified Welcome page | `src/vs/workbench/contrib/welcomeGettingStarted` |
 
@@ -132,4 +137,4 @@ Vantrex IDE is released under the [MIT License](LICENSE.txt). It is a derivative
 also MIT licensed. Third-party components keep their own licenses: see [ThirdPartyNotices.txt](ThirdPartyNotices.txt).
 
 Vantrex IDE is not affiliated with, endorsed by or sponsored by Microsoft. "Visual Studio Code" and "VS Code" are trademarks of Microsoft
-Corporation. Bricolage Grotesque and JetBrains Mono are distributed under the SIL Open Font License.
+Corporation. JetBrains Mono is distributed under the SIL Open Font License.

@@ -38,6 +38,12 @@ class VantrexCommandBar extends Disposable implements IWorkbenchContribution {
 		updateKeys();
 		this._register(this.keybindingService.onDidUpdateKeybindings(updateKeys));
 
+		// The glass sheen follows the pointer across the bar.
+		this._register(addDisposableListener(bar, EventType.MOUSE_MOVE, (e: MouseEvent) => {
+			const r = bar.getBoundingClientRect();
+			bar.style.setProperty('--mx', `${e.clientX - r.left}px`);
+			bar.style.setProperty('--my', `${e.clientY - r.top}px`);
+		}));
 		this._register(addDisposableListener(bar, EventType.CLICK, () => this.commandService.executeCommand(OPEN_COMMAND)));
 		this._register({ dispose: () => bar.remove() });
 	}

@@ -13,23 +13,129 @@
   ],
   "activationEvents": [
     "onStartupFinished",
-    "onFileSystem:vtxws"
+    "onFileSystem:vtxws",
+    "onFileSystem:vtxdb"
   ],
   "main": "./extension.js",
   "contributes": {
     "commands": [
-      { "command": "vantrex.workspace.open", "title": "Open Workspace...", "category": "Vantrex" },
-      { "command": "vantrex.workspace.menu", "title": "Workspace Menu", "category": "Vantrex" },
-      { "command": "vantrex.workspace.preview", "title": "Open Preview", "category": "Vantrex" },
-      { "command": "vantrex.workspace.terminal", "title": "Open Workspace Terminal", "category": "Vantrex" },
-      { "command": "vantrex.workspace.commit", "title": "Commit Changes...", "category": "Vantrex" },
-      { "command": "vantrex.workspace.runTask", "title": "Run Task...", "category": "Vantrex" },
-      { "command": "vantrex.workspace.startDev", "title": "Start Dev Server", "category": "Vantrex" },
-      { "command": "vantrex.workspace.stopDev", "title": "Stop Dev Server", "category": "Vantrex" },
-      { "command": "vantrex.workspace.syncEnv", "title": "Sync Development Environment Variables", "category": "Vantrex" },
-      { "command": "vantrex.workspace.stop", "title": "Stop Workspace", "category": "Vantrex" },
-      { "command": "vantrex.workspace.delete", "title": "Delete Workspace...", "category": "Vantrex" },
-      { "command": "vantrex.workspace.dashboard", "title": "Open Project in the Dashboard", "category": "Vantrex" }
+      {
+        "command": "vantrex.workspace.open",
+        "title": "Open Workspace...",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.workspace.menu",
+        "title": "Workspace Menu",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.workspace.preview",
+        "title": "Open Preview",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.workspace.terminal",
+        "title": "Open Workspace Terminal",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.workspace.commit",
+        "title": "Commit Changes...",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.workspace.runTask",
+        "title": "Run Task...",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.workspace.startDev",
+        "title": "Start Dev Server",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.workspace.stopDev",
+        "title": "Stop Dev Server",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.workspace.syncEnv",
+        "title": "Sync Development Environment Variables",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.workspace.stop",
+        "title": "Stop Workspace",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.workspace.delete",
+        "title": "Delete Workspace...",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.workspace.dashboard",
+        "title": "Open Project in the Dashboard",
+        "category": "Vantrex"
+      },
+      {
+        "command": "vantrex.db.run",
+        "title": "Run SQL",
+        "category": "Vantrex Database",
+        "icon": "$(play)"
+      },
+      {
+        "command": "vantrex.db.openTable",
+        "title": "Open Table",
+        "category": "Vantrex Database"
+      },
+      {
+        "command": "vantrex.db.refresh",
+        "title": "Refresh Tables",
+        "category": "Vantrex Database",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "vantrex.db.switchDatabase",
+        "title": "Switch Database...",
+        "category": "Vantrex Database"
+      },
+      {
+        "command": "vantrex.db.connect",
+        "title": "Copy Connection String...",
+        "category": "Vantrex Database",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "vantrex.db.history",
+        "title": "SQL History...",
+        "category": "Vantrex Database",
+        "icon": "$(history)"
+      },
+      {
+        "command": "vantrex.db.selectTop",
+        "title": "Select Top 100 Rows",
+        "category": "Vantrex Database",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "vantrex.db.newScript",
+        "title": "New SQL Script...",
+        "category": "Vantrex Database",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "vantrex.db.menu",
+        "title": "Database Menu",
+        "category": "Vantrex Database"
+      },
+      {
+        "command": "vantrex.db.wake",
+        "title": "Wake Database",
+        "category": "Vantrex Database",
+        "icon": "$(zap)"
+      }
     ],
     "configuration": {
       "title": "Vantrex Workspaces",
@@ -40,7 +146,86 @@
           "description": "Open the live preview beside the editor once the dev server is up."
         }
       }
-    }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vantrex-db",
+          "title": "Database",
+          "icon": "$(database)"
+        }
+      ],
+      "panel": [
+        {
+          "id": "vantrex-db-results",
+          "title": "Results",
+          "icon": "$(table)"
+        }
+      ]
+    },
+    "views": {
+      "vantrex-db": [
+        {
+          "id": "vantrex.db.tree",
+          "name": "Tables",
+          "when": "vantrex.db"
+        }
+      ],
+      "vantrex-db-results": [
+        {
+          "id": "vantrex.db.results",
+          "name": "Results",
+          "type": "webview",
+          "when": "vantrex.db"
+        }
+      ]
+    },
+    "menus": {
+      "editor/title": [
+        {
+          "command": "vantrex.db.run",
+          "when": "vantrex.db && resourceScheme == vtxdb",
+          "group": "navigation"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "vantrex.db.refresh",
+          "when": "view == vantrex.db.tree",
+          "group": "navigation@1"
+        },
+        {
+          "command": "vantrex.db.newScript",
+          "when": "view == vantrex.db.tree",
+          "group": "navigation@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "vantrex.db.selectTop",
+          "when": "view == vantrex.db.tree && viewItem == table",
+          "group": "inline"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "vantrex.db.openTable",
+          "when": "false"
+        },
+        {
+          "command": "vantrex.db.selectTop",
+          "when": "false"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "vantrex.db.run",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "vantrex.db && resourceScheme == vtxdb && editorTextFocus"
+      }
+    ]
   },
   "repository": {
     "type": "git",

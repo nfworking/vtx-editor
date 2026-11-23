@@ -16,6 +16,8 @@ const { WorkspaceTerminal } = require('./lib/terminal');
 const { PreviewProxy, PreviewPanel } = require('./lib/preview');
 const { Baseline, commit } = require('./lib/commit');
 const tasks = require('./lib/tasks');
+const { activateDb, SCHEME: DB_SCHEME } = require('./lib/db');
+const dbApi = require('./lib/db/api');
 
 const SCHEME = 'vtxws';
 const errText = (e) => (e instanceof ApiError ? e.message : (e && e.message) || String(e));
@@ -54,12 +56,25 @@ function activate(context) {
 
 	// ---- picking and starting a workspace
 
+	/** Code projects (a GitHub repository, opened as a workspace) and database projects, in one list. */
 	async function pickProject() {
-		const r = await call('GET', 'projects');
-		const list = (r.data || []).filter((p) => p.repo_full_name);
-		if (!list.length) { vscode.window.showInformationMessage('No project is linked to a GitHub repository yet. Link one in the dashboard to open it here.'); return undefined; }
-		const pick = await vscode.window.showQuickPick(list.map((p) => ({ label: p.name, description: p.repo_full_name, detail: p.slug, project: p })), { title: 'Open a Vantrex Workspace', placeHolder: 'Choose a project' });
-		return pick && pick.project;
+		const [code, dbs] = await Promise.all([
+			call('GET', 'projects').then((r) => r.data || []),
+			dbApi.projects().catch(() => []), // databases may be switched off on this platform
+		]);
+		const repos = code.filter((p) => p.repo_full_name);
+		if (!repos.length && !dbs.length) { vscode.window.showInformationMessage('No project is linked to a GitHub repository and there are no database projects yet.'); return undefined; }
+		const items = [];
+		if (repos.length) {
+			items.push({ label: 'Code', kind: vscode.QuickPickItemKind.Separator });
+			for (const p of repos) { items.push({ label: `$(code) ${p.name}`, description: p.repo_full_name, detail: p.slug, kind: 'code', project: p }); }
+		}
+		if (dbs.length) {
+			items.push({ label: 'Databases', kind: vscode.QuickPickItemKind.Separator });
+			for (const p of dbs) { items.push({ label: `$(database) ${p.name}`, description: p.state, detail: p.endpoint, kind: 'db', project: p }); }
+		}
+		const pick = await vscode.window.showQuickPick(items, { title: 'Open a Vantrex Workspace', placeHolder: 'Choose a project' });
+		return pick && Object.assign({ kind: pick.kind }, pick.project);
 	}
 
 	async function pickBranch(project) {
@@ -95,6 +110,12 @@ function activate(context) {
 			await vscode.authentication.getSession('vantrex', ['sync'], { createIfNone: true });
 			const project = await pickProject();
 			if (!project) { return; }
+			if (project.kind === 'db') {
+				// A database project has no files: the window becomes the database editor (lib/db).
+				const here = (vscode.workspace.workspaceFolders || []).length === 0;
+				await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.from({ scheme: DB_SCHEME, authority: project.id, path: '/' }), { forceNewWindow: !here });
+				return;
+			}
 			const branch = await pickBranch(project);
 			if (!branch) { return; }
 			const w = await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Opening ${project.name} (${branch})` }, async (progress) => {
@@ -348,6 +369,8 @@ function activate(context) {
 		void vscode.commands.executeCommand('setContext', 'vantrex.workspace', false);
 	}
 	context.subscriptions.push({ dispose: detach });
+
+	activateDb(context);
 
 	// Signed out or not, the status bar entry is only for windows that have a workspace; the menu command opens one from anywhere.
 	void attach();

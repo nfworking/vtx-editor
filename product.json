@@ -1,7 +1,6 @@
 {
 	"nameShort": "Vantrex",
 	"nameLong": "Vantrex",
-	"quality": "release",
 	"vantrexVersion": "0.1.8",
 	"updateUrl": "https://api.github.com/repos/nfworking/vtx-editor/releases/latest",
 	"applicationName": "vantrex",

@@ -443,7 +443,8 @@ export abstract class AbstractUpdateService extends Disposable implements IUpdat
 	}
 
 	private getProductQuality(updateMode: string): string | undefined {
-		return updateMode === 'none' ? undefined : this.productService.quality;
+		// Vantrex builds have no product quality (setting one switches on release-only build steps), so a stamped release version stands in for it.
+		return updateMode === 'none' ? undefined : (this.productService.quality ?? (this.productService.vantrexVersion ? 'release' : undefined));
 	}
 
 	private scheduleCheckForUpdates(delay = 60 * 60 * 1000, repeat = true): void {

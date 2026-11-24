@@ -1148,6 +1148,7 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 			arch: arch(),
 			platform: platform(),
 			release: release(),
+			systemVersion: process.getSystemVersion?.(),
 			type: type(),
 			cpus: cpus()
 		};

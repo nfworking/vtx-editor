@@ -6,7 +6,6 @@
 import { EventHelper } from '../../../../base/browser/dom.js';
 import { StandardKeyboardEvent } from '../../../../base/browser/keyboardEvent.js';
 import { IDialogOptions } from '../../../../base/browser/ui/dialog/dialog.js';
-import { fromNow } from '../../../../base/common/date.js';
 import { localize } from '../../../../nls.js';
 import { IHostService } from '../../../services/host/browser/host.js';
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
@@ -53,22 +52,15 @@ export function createWorkbenchDialogOptions(
 }
 
 export function createBrowserAboutDialogDetails(productService: IProductService): { title: string; details: string; detailsToCopy: string } {
-	const detailString = (useAgo: boolean): string => {
-		return localize('aboutDetail',
-			"Version: {0}\nCommit: {1}\nDate: {2}\nBrowser: {3}",
-			productService.version || 'Unknown',
-			productService.commit || 'Unknown',
-			productService.date ? `${productService.date}${useAgo ? ' (' + fromNow(new Date(productService.date), true) + ')' : ''}` : 'Unknown',
-			navigator.userAgent
-		);
-	};
-
-	const details = detailString(true);
-	const detailsToCopy = detailString(false);
+	const details = localize('aboutDetail',
+		"Version: {0}\nBuilt: {1}",
+		productService.vantrexVersion || productService.version || 'Unknown',
+		productService.date?.slice(0, 10) || 'Unknown'
+	);
 
 	return {
 		title: productService.nameLong,
-		details: details,
-		detailsToCopy: detailsToCopy
+		details,
+		detailsToCopy: details
 	};
 }

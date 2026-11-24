@@ -117,6 +117,8 @@ export interface ICPUProperties {
 export interface IOSProperties {
 	type: string;
 	release: string;
+	/** The version people know the OS by, such as 15.1 for macOS, when the platform reports it. */
+	systemVersion?: string;
 	arch: string;
 	platform: string;
 	cpus: ICPUProperties[];

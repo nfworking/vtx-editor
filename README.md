@@ -32,8 +32,10 @@ the integrated terminal, language servers) and changes how it looks and what it 
   the editor, and **Commit Changes** sends your edits to GitHub as one commit (optionally on a new branch with a pull request).
 - **Language support for the web.** TypeScript, JavaScript, HTML, CSS, JSON and Markdown work out of the box, including completion, hover,
   diagnostics and formatting.
-- **No AI features and no telemetry.** The AI assistant, its extensions and its menus are removed or switched off, telemetry is off, and
-  automatic updates are off by default.
+- **No AI features and no telemetry.** The AI assistant, its extensions and its menus are removed or switched off, telemetry is off.
+- **Automatic updates.** The editor checks the [Releases](https://github.com/nfworking/vtx-editor/releases) page hourly, downloads the archive for
+  your platform, verifies its SHA-256 against `SHA256SUMS.txt`, and installs it the next time you restart (macOS, Windows and Linux). If the
+  folder it runs from is read-only it offers the download instead. Set `update.mode` to `none` to turn this off.
 
 ## Download
 
@@ -41,10 +43,12 @@ Get the latest build from the [**Releases**](https://github.com/nfworking/vtx-ed
 
 | Platform | File | Notes |
 | --- | --- | --- |
-| Windows (x64) | `Vantrex-<version>-win32-x64.zip` | Unzip anywhere and run `Vantrex.exe`. Windows SmartScreen may warn about an unknown publisher: choose **More info**, then **Run anyway**. |
-| macOS (Apple silicon) | `Vantrex-<version>-darwin-arm64.zip` | Unzip and move `Vantrex.app` to Applications. See the note below. |
-| macOS (Intel) | `Vantrex-<version>-darwin-x64.zip` | As above. |
+| Windows (x64) | `Vantrex-<version>-win32-x64-setup.exe` | A per-user installer (no administrator needed). Windows SmartScreen may warn about an unknown publisher: choose **More info**, then **Run anyway**. A `.zip` is also published. |
+| macOS (Apple silicon) | `Vantrex-<version>-darwin-arm64.dmg` | Open the disk image and drag Vantrex to Applications. See the note below. A `.zip` is also published. |
+| macOS (Intel) | `Vantrex-<version>-darwin-x64.dmg` | As above. |
 | Linux (x64) | `Vantrex-<version>-linux-x64.tar.gz` | Extract and run `./vantrex`. |
+
+The editor updates itself from these releases using the `.zip` and `.tar.gz` archives, so keep them in the release.
 
 Each release includes `SHA256SUMS.txt`. Verify a download with `shasum -a 256 <file>` (macOS, Linux) or `Get-FileHash <file>` (Windows).
 

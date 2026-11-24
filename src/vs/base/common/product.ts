@@ -127,6 +127,8 @@ export interface IProductConfiguration {
 
 	readonly downloadUrl?: string;
 	readonly updateUrl?: string;
+	/** The Vantrex IDE release this build was made from, such as `0.1.8`. The updater compares it with the latest GitHub release. */
+	readonly vantrexVersion?: string;
 	readonly webUrl?: string;
 	readonly webEndpointUrlTemplate?: string;
 	readonly webviewContentExternalBaseUrlTemplate?: string;

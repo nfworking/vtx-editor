@@ -28,6 +28,7 @@ import { IWorkbenchEnvironmentService } from '../../../services/environment/comm
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 import { IOpenerService } from '../../../../platform/opener/common/opener.js';
 import { IProductService } from '../../../../platform/product/common/productService.js';
+import { getReleaseNotesMediaBase, getReleaseNotesUrl, getReleaseVersion } from '../../../../platform/update/common/vantrexUpdate.js';
 import { asTextOrError, IRequestService } from '../../../../platform/request/common/request.js';
 import { DEFAULT_MARKDOWN_STYLES, renderMarkdownDocument } from '../../markdown/browser/markdownDocumentRenderer.js';
 import { WebviewInput } from '../../webviewPanel/browser/webviewEditorInput.js';
@@ -159,7 +160,8 @@ export class ReleaseNotesManager extends Disposable {
 				return dirname(currentFileUri);
 			}
 		}
-		return URI.parse('https://code.visualstudio.com/raw');
+		const template = this._productService.vantrexReleaseNotesUrl;
+		return URI.parse(template ? getReleaseNotesMediaBase(template, getReleaseVersion(this._productService)) : 'https://vantrex.cloud/');
 	}
 
 	public async show(version: string, useCurrentFile: boolean, source: ReleaseNotesSource = 'other'): Promise<boolean> {
@@ -200,7 +202,7 @@ export class ReleaseNotesManager extends Disposable {
 		const codeBlocks: IReleaseNotesCodeBlock[] = [];
 		let html: string;
 		try {
-			html = await this.renderBody({ text: releaseNotes.text, base, mediaBaseUrl: useCurrentFile ? undefined : 'https://code.visualstudio.com/assets/updates/', isPreview: useCurrentFile }, tryouts, codeBlocks, telemetry);
+			html = await this.renderBody({ text: releaseNotes.text, base, mediaBaseUrl: useCurrentFile || !this._productService.vantrexReleaseNotesUrl ? undefined : getReleaseNotesMediaBase(this._productService.vantrexReleaseNotesUrl, version), isPreview: useCurrentFile }, tryouts, codeBlocks, telemetry);
 		} catch (error) {
 			if (this._pendingDocument.value === tryouts) {
 				this._pendingDocument.clear();
@@ -236,7 +238,7 @@ export class ReleaseNotesManager extends Disposable {
 				},
 				'releaseNotes',
 				title,
-				Codicon.vscode,
+				Codicon.megaphone,
 				{ group: ACTIVE_GROUP, preserveFocus: false });
 
 			const input = this._currentReleaseNotes;
@@ -375,14 +377,12 @@ export class ReleaseNotesManager extends Disposable {
 	}
 
 	private async loadReleaseNotes(version: string, useCurrentFile: boolean): Promise<{ text: string; revision: string }> {
-		const match = /^(\d+\.\d+)\./.exec(version);
-		if (!match) {
+		const template = this._productService.vantrexReleaseNotesUrl;
+		if (!template || !/^\d+\.\d+\.\d+/.test(version)) {
 			throw new Error('not found');
 		}
 
-		const versionLabel = match[1].replace(/\./g, '_');
-		const baseUrl = 'https://code.visualstudio.com/raw';
-		const url = `${baseUrl}/v${versionLabel}.md`;
+		const url = getReleaseNotesUrl(template, version);
 		const unassigned = nls.localize('unassigned', "unassigned");
 
 		const escapeMdHtml = (text: string): string => {

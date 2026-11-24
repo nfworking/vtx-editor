@@ -191,9 +191,46 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  # The text of the release: the notes file for the tag (release-notes/<tag>.md), or a plain list of commits when there is none.
+  notes:
+    name: Release notes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Collect the notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          if [[ "$GITHUB_REF" == refs/tags/v* ]] && [ -f "release-notes/${GITHUB_REF_NAME}.md" ]; then
+            head -n 1 "release-notes/${GITHUB_REF_NAME}.md" | grep -q '^# ' || { echo "release-notes/${GITHUB_REF_NAME}.md must start with a '# ' heading"; exit 1; }
+            cp "release-notes/${GITHUB_REF_NAME}.md" out/release-notes.md
+            echo "using release-notes/${GITHUB_REF_NAME}.md"
+          else
+            echo "::warning::No release-notes/${GITHUB_REF_NAME}.md: the release text is a list of commits. Write the notes with scripts/draft-release-notes.sh before tagging."
+            PREV="$(git describe --tags --abbrev=0 --match 'v[0-9]*' "${GITHUB_SHA}^" 2>/dev/null || true)"
+            {
+              echo "# Vantrex ${GITHUB_REF_NAME#v}"
+              echo
+              echo "## Changes"
+              echo
+              git log --no-merges --pretty='- %s' "${PREV:+$PREV..}${GITHUB_SHA}"
+            } > out/release-notes.md
+          fi
+          cat out/release-notes.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: out/release-notes.md
+          retention-days: 14
+
   release:
     name: Publish release
-    needs: build
+    needs: [build, notes]
     if: startsWith(github.ref, 'refs/tags/v') || inputs.draft_release
     runs-on: ubuntu-latest
     permissions:
@@ -204,6 +241,11 @@ jobs:
           path: artifacts
           pattern: vantrex-*
           merge-multiple: true
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: notes
 
       - name: Checksums
         working-directory: artifacts
@@ -216,8 +258,8 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-            gh release create "$GITHUB_REF_NAME" artifacts/* --repo "$REPO" --title "Vantrex IDE ${GITHUB_REF_NAME}" --generate-notes
+            gh release create "$GITHUB_REF_NAME" artifacts/* --repo "$REPO" --title "Vantrex IDE ${GITHUB_REF_NAME}" --notes-file notes/release-notes.md
           else
             gh release create "draft-${GITHUB_RUN_NUMBER}" artifacts/* --repo "$REPO" --title "Vantrex IDE (draft ${GITHUB_RUN_NUMBER})" \
-              --target "$GITHUB_SHA" --draft --generate-notes
+              --target "$GITHUB_SHA" --draft --notes-file notes/release-notes.md
           fi

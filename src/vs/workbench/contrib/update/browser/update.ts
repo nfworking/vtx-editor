@@ -32,6 +32,7 @@ import { Event } from '../../../../base/common/event.js';
 import { IDefaultAccountService } from '../../../../platform/defaultAccount/common/defaultAccount.js';
 import { getInternalOrg } from '../../../../platform/assignment/common/assignment.js';
 import { IVersion, tryParseVersion } from '../common/updateUtils.js';
+import { getReleaseVersion, shouldShowReleaseNotes as isReleaseNotesDue } from '../../../../platform/update/common/vantrexUpdate.js';
 import { UpdateGlobalActivityBadgeVisibleContext } from '../common/update.js';
 import { ReleaseNotesSource } from './releaseNotesTelemetry.js';
 
@@ -164,7 +165,7 @@ function isMajorMinorUpdate(before: IVersion, after: IVersion): boolean {
 
 export class ProductContribution implements IWorkbenchContribution {
 
-	private static readonly KEY = 'releaseNotes/lastVersion';
+	private static readonly KEY = 'vantrex/releaseNotes/lastVersion';
 
 	constructor(
 		@IStorageService storageService: IStorageService,
@@ -185,19 +186,19 @@ export class ProductContribution implements IWorkbenchContribution {
 				return;
 			}
 
-			const lastVersion = tryParseVersion(storageService.get(ProductContribution.KEY, StorageScope.APPLICATION, ''));
-			const currentVersion = tryParseVersion(productService.version);
+			const currentVersion = getReleaseVersion(productService);
+			const lastVersion = storageService.get(ProductContribution.KEY, StorageScope.APPLICATION, '') || undefined;
 			const shouldShowReleaseNotes = configurationService.getValue<boolean>('update.showReleaseNotes');
 			const shouldShowPostInstallInfo = configurationService.getValue<boolean>('update.showPostInstallInfo');
 			const releaseNotesUrl = productService.releaseNotesUrl;
 
-			// was there a major/minor update? if so, open release notes (unless post-install info is enabled, which takes over)
-			if (shouldShowReleaseNotes && !shouldShowPostInstallInfo && !environmentService.skipReleaseNotes && releaseNotesUrl && lastVersion && currentVersion && isMajorMinorUpdate(lastVersion, currentVersion)) {
-				showReleaseNotesInEditor(instantiationService, productService.version, false, 'automaticUpdate')
+			// was there an update? if so, open its release notes (unless post-install info is enabled, which takes over)
+			if (shouldShowReleaseNotes && !shouldShowPostInstallInfo && !environmentService.skipReleaseNotes && releaseNotesUrl && isReleaseNotesDue(lastVersion, currentVersion)) {
+				showReleaseNotesInEditor(instantiationService, currentVersion, false, 'automaticUpdate')
 					.then(undefined, () => {
 						notificationService.prompt(
 							severity.Info,
-							nls.localize('read the release notes', "Welcome to {0} v{1}! Would you like to read the Release Notes?", productService.nameLong, productService.version),
+							nls.localize('read the release notes', "Welcome to {0} v{1}! Would you like to read the Release Notes?", productService.nameLong, currentVersion),
 							[{
 								label: nls.localize('releaseNotes', "Release Notes"),
 								run: () => {
@@ -210,7 +211,7 @@ export class ProductContribution implements IWorkbenchContribution {
 					});
 			}
 
-			storageService.store(ProductContribution.KEY, productService.version, StorageScope.APPLICATION, StorageTarget.MACHINE);
+			storageService.store(ProductContribution.KEY, currentVersion, StorageScope.APPLICATION, StorageTarget.MACHINE);
 		});
 	}
 }

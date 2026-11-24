@@ -36,6 +36,9 @@ the integrated terminal, language servers) and changes how it looks and what it 
 - **Automatic updates.** The editor checks the [Releases](https://github.com/nfworking/vtx-editor/releases) page hourly, downloads the archive for
   your platform, verifies its SHA-256 against `SHA256SUMS.txt`, and installs it the next time you restart (macOS, Windows and Linux). If the
   folder it runs from is read-only it offers the download instead. Set `update.mode` to `none` to turn this off.
+- **Release notes after an update.** The first start after an update opens that release's notes in a tab. They live in
+  [`release-notes/`](release-notes) and are published with each GitHub release; `scripts/draft-release-notes.sh` starts a new file.
+  Turn the tab off with `update.showReleaseNotes`.
 
 ## Download
 

@@ -149,3 +149,31 @@ export function findChecksum(text: string, fileName: string): string | undefined
 export function isUpdateCandidate(release: IVantrexRelease): boolean {
 	return !!release.tag_name && !release.draft && !release.prerelease;
 }
+
+/** The version a build was released as: the stamped Vantrex release, or the editor core's own version when there is none. */
+export function getReleaseVersion(product: { readonly vantrexVersion?: string; readonly version: string }): string {
+	return product.vantrexVersion || product.version;
+}
+
+/** The address of the release notes of a version, from a template such as `https://host/v{version}/notes/v{version}.md`. */
+export function getReleaseNotesUrl(template: string, version: string): string {
+	return template.replace(/\{version\}/g, versionFromTag(version));
+}
+
+/** The address that images in release notes resolve against: the `images/` folder next to the notes file. */
+export function getReleaseNotesMediaBase(template: string, version: string): string {
+	const url = getReleaseNotesUrl(template, version);
+	return `${url.slice(0, url.lastIndexOf('/') + 1)}images/`;
+}
+
+/**
+ * Whether the release notes tab should open on this start: the editor has run before (`lastSeen` is known) and the
+ * release is newer than the last one it ran. A first run, or a downgrade, shows nothing.
+ */
+export function shouldShowReleaseNotes(lastSeen: string | undefined, current: string): boolean {
+	if (!lastSeen) {
+		return false;
+	}
+
+	return (compareVersions(current, lastSeen) ?? 0) > 0;
+}

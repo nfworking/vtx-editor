@@ -29,6 +29,7 @@ import { IsWebContext } from '../../../../platform/contextkey/common/contextkeys
 import { IOpenerService } from '../../../../platform/opener/common/opener.js';
 import { IProductService } from '../../../../platform/product/common/productService.js';
 import { URI } from '../../../../base/common/uri.js';
+import { getReleaseVersion } from '../../../../platform/update/common/vantrexUpdate.js';
 import { AccessibleViewRegistry } from '../../../../platform/accessibility/browser/accessibleViewRegistry.js';
 import { ReleaseNotesAccessibilityHelp } from './releaseNotesAccessibilityHelp.js';
 
@@ -76,7 +77,7 @@ export class ShowReleaseNotesAction extends Action2 {
 		const instantiationService = accessor.get(IInstantiationService);
 		const productService = accessor.get(IProductService);
 		const openerService = accessor.get(IOpenerService);
-		const targetVersion = version ?? productService.version;
+		const targetVersion = version ?? getReleaseVersion(productService);
 
 		try {
 			await showReleaseNotesInEditor(instantiationService, targetVersion, false, source === PostUpdateReleaseNotesSource ? 'postUpdateWidget' : 'command');

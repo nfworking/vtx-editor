@@ -5,7 +5,7 @@
 
 import assert from 'assert';
 import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../../base/test/common/utils.js';
-import { compareVersions, findChecksum, findChecksumsUrl, isUpdateCandidate, selectReleaseAsset, versionFromTag } from '../../common/vantrexUpdate.js';
+import { compareVersions, findChecksum, findChecksumsUrl, getReleaseNotesMediaBase, getReleaseNotesUrl, getReleaseVersion, isUpdateCandidate, selectReleaseAsset, shouldShowReleaseNotes, versionFromTag } from '../../common/vantrexUpdate.js';
 
 suite('Vantrex update', () => {
 
@@ -93,6 +93,38 @@ suite('Vantrex update', () => {
 			prerelease: false,
 			noTag: false,
 			tag: '0.1.8',
+		});
+	});
+
+	test('release notes address and when to show them', () => {
+		const template = 'https://raw.example.test/v{version}/release-notes/v{version}.md';
+
+		assert.deepStrictEqual({
+			url: getReleaseNotesUrl(template, '0.1.12'),
+			urlFromTag: getReleaseNotesUrl(template, 'v0.1.12'),
+			media: getReleaseNotesMediaBase(template, '0.1.12'),
+			stamped: getReleaseVersion({ vantrexVersion: '0.1.12', version: '1.148.0' }),
+			unstamped: getReleaseVersion({ version: '1.148.0' }),
+			firstRun: shouldShowReleaseNotes(undefined, '0.1.12'),
+			sameVersion: shouldShowReleaseNotes('0.1.12', '0.1.12'),
+			update: shouldShowReleaseNotes('0.1.11', '0.1.12'),
+			skippedVersions: shouldShowReleaseNotes('0.1.9', '0.1.12'),
+			tenIsNewerThanNine: shouldShowReleaseNotes('0.1.9', '0.1.10'),
+			downgrade: shouldShowReleaseNotes('0.1.12', '0.1.11'),
+			garbage: shouldShowReleaseNotes('1.148.0-x', 'dev'),
+		}, {
+			url: 'https://raw.example.test/v0.1.12/release-notes/v0.1.12.md',
+			urlFromTag: 'https://raw.example.test/v0.1.12/release-notes/v0.1.12.md',
+			media: 'https://raw.example.test/v0.1.12/release-notes/images/',
+			stamped: '0.1.12',
+			unstamped: '1.148.0',
+			firstRun: false,
+			sameVersion: false,
+			update: true,
+			skippedVersions: true,
+			tenIsNewerThanNine: true,
+			downgrade: false,
+			garbage: false,
 		});
 	});
 });

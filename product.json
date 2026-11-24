@@ -2,6 +2,8 @@
 	"nameShort": "Vantrex",
 	"nameLong": "Vantrex",
 	"vantrexVersion": "0.1.8",
+	"vantrexReleaseNotesUrl": "https://raw.githubusercontent.com/nfworking/vtx-editor/v{version}/release-notes/v{version}.md",
+	"releaseNotesUrl": "https://github.com/nfworking/vtx-editor/releases",
 	"updateUrl": "https://api.github.com/repos/nfworking/vtx-editor/releases/latest",
 	"applicationName": "vantrex",
 	"configurationSync.store": {

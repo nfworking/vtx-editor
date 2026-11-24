@@ -104,7 +104,7 @@ configurationRegistry.registerConfiguration({
 			type: 'boolean',
 			default: true,
 			scope: ConfigurationScope.APPLICATION,
-			description: localize('showReleaseNotes', "Show Release Notes after an update. The Release Notes are fetched from a Microsoft online service."),
+			description: localize('showReleaseNotes', "Show the Release Notes after an update. They are fetched from the Vantrex IDE repository on GitHub."),
 			tags: ['usesOnlineServices'],
 			agentsWindow: { default: false, readOnly: true },
 		},

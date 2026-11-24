@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { execFile } from 'child_process';
+import { execFile, spawn } from 'child_process';
 import { constants } from 'fs';
-import { access, mkdir, readdir, rm, writeFile } from 'fs/promises';
+import { access, mkdir, readdir, writeFile } from 'fs/promises';
 import { basename, dirname, join } from 'path';
 
 /**
@@ -77,9 +77,21 @@ function run(command: string, args: string[]): Promise<void> {
 	});
 }
 
+/**
+ * Deletes a folder. This cannot use `fs.rm`: inside Electron it treats a file named `*.asar` as a folder it cannot empty,
+ * so a staged copy of the editor (which holds `node_modules.asar`) would be left half deleted.
+ */
+export async function removeTree(path: string): Promise<void> {
+	if (process.platform === 'win32') {
+		await run('cmd.exe', ['/d', '/c', 'rmdir', '/s', '/q', path]).catch(() => undefined);
+	} else {
+		await run('/bin/rm', ['-rf', path]);
+	}
+}
+
 /** Unpacks a release archive into an empty `destination` and returns the path of the unpacked copy. */
 export async function extractRelease(platform: NodeJS.Platform, archive: string, destination: string): Promise<string> {
-	await rm(destination, { recursive: true, force: true });
+	await removeTree(destination);
 	await mkdir(destination, { recursive: true });
 
 	if (platform === 'darwin') {
@@ -144,6 +156,7 @@ if mv "$TARGET" "$BACKUP"; then
 	if mv "$STAGED" "$TARGET"; then
 		log "updated"
 		rm -rf "$BACKUP"
+		rmdir "$(dirname "$STAGED")" 2>/dev/null
 	else
 		log "could not move the new copy into place, restoring"
 		mv "$BACKUP" "$TARGET"
@@ -173,4 +186,12 @@ export async function writeSwapScript(platform: 'darwin' | 'linux' | 'win32', di
 	const path = join(directory, platform === 'win32' ? 'vantrex-update.ps1' : 'vantrex-update.sh');
 	await writeFile(path, platform === 'win32' ? renderWindowsSwapScript() : renderUnixSwapScript(platform), { mode: 0o755 });
 	return path;
+}
+
+/** Starts the swap script so that it outlives this process. This must run synchronously: the process is about to exit. */
+export function startSwapScript(target: IVantrexInstallTarget, script: string, args: string[]): void {
+	const child = target.platform === 'win32'
+		? spawn('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', script, ...args], { detached: true, stdio: 'ignore', windowsHide: true })
+		: spawn('/bin/sh', [script, ...args], { detached: true, stdio: 'ignore' });
+	child.unref();
 }

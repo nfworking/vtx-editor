@@ -3,10 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { spawn } from 'child_process';
 import { createHash } from 'crypto';
 import { createReadStream } from 'fs';
-import { rm, readdir } from 'fs/promises';
+import { readdir } from 'fs/promises';
 import { join } from 'path';
 import { CancellationToken, CancellationTokenSource } from '../../../base/common/cancellation.js';
 import { VSBuffer } from '../../../base/common/buffer.js';
@@ -27,7 +26,7 @@ import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 import { AvailableForDownload, IQuitAndInstallOptions, IUpdate, State, StateType, UpdateType } from '../common/update.js';
 import { compareVersions, findChecksum, findChecksumsUrl, isUpdateCandidate, IVantrexRelease, selectReleaseAsset, versionFromTag } from '../common/vantrexUpdate.js';
 import { AbstractUpdateService, IUpdateURLOptions } from './abstractUpdateService.js';
-import { canReplaceInstall, extractRelease, getInstallTarget, IVantrexInstallTarget, looksLikeEditor, writeSwapScript } from './vantrexInstall.js';
+import { canReplaceInstall, extractRelease, getInstallTarget, IVantrexInstallTarget, looksLikeEditor, removeTree, startSwapScript, writeSwapScript } from './vantrexInstall.js';
 
 const UPDATE_DIR = 'vantrex-update';
 
@@ -39,7 +38,7 @@ const UPDATE_DIR = 'vantrex-update';
  */
 export class VantrexUpdateService extends AbstractUpdateService {
 
-	private pending: { readonly update: IUpdate; readonly unpacked: string; readonly target: IVantrexInstallTarget } | undefined;
+	private pending: { readonly update: IUpdate; readonly unpacked: string; readonly target: IVantrexInstallTarget; readonly script: string } | undefined;
 	private inflight: CancellationTokenSource | undefined;
 
 	constructor(
@@ -157,7 +156,7 @@ export class VantrexUpdateService extends AbstractUpdateService {
 
 		try {
 			const workDir = join(this.cacheDir, versionFromTag(update.version));
-			await rm(workDir, { recursive: true, force: true });
+			await removeTree(workDir);
 			const archive = join(workDir, assetName);
 
 			const checksums = await this.fetchText(checksumsUrl, cts.token);
@@ -173,24 +172,26 @@ export class VantrexUpdateService extends AbstractUpdateService {
 
 			const actual = await sha256(archive);
 			if (actual !== expected) {
-				await rm(workDir, { recursive: true, force: true });
+				await removeTree(workDir);
 				throw new Error('The downloaded update did not match its checksum and was discarded.');
 			}
 
 			const stage = join(target.stagingParent, `.vantrex-update-${versionFromTag(update.version)}`);
 			const unpacked = await extractRelease(process.platform, archive, stage);
 			if (!(await looksLikeEditor(process.platform, unpacked, target))) {
-				await rm(stage, { recursive: true, force: true });
+				await removeTree(stage);
 				throw new Error('The downloaded update is incomplete and was discarded.');
 			}
-			await rm(workDir, { recursive: true, force: true }); // the archive is no longer needed
+			await removeTree(workDir); // the archive is no longer needed
 
 			if (cts.token.isCancellationRequested) {
-				await rm(stage, { recursive: true, force: true });
+				await removeTree(stage);
 				return;
 			}
 
-			this.pending = { update: { ...update, sha256hash: expected }, unpacked, target };
+			// Written now, not at restart: the process exits as soon as the restart begins, so there is no time to write it then.
+			const script = await writeSwapScript(target.platform, this.cacheDir);
+			this.pending = { update: { ...update, sha256hash: expected }, unpacked, target, script };
 			this.setState(State.Ready(this.pending.update, explicit, false));
 		} finally {
 			if (this.inflight === cts) {
@@ -252,18 +253,15 @@ export class VantrexUpdateService extends AbstractUpdateService {
 			return;
 		}
 
-		const { target, unpacked } = pending;
+		const { target, unpacked, script } = pending;
 		this.logService.info(`update#quitAndInstall - installing ${pending.update.productVersion} over ${target.root}`);
 
-		// Written and started synchronously enough that it outlives this process: it waits for our pid to exit.
-		const log = join(this.cacheDir, 'update.log');
-		void writeSwapScript(target.platform, this.cacheDir).then(script => {
-			const args = [String(process.pid), target.root, unpacked, target.launch, log];
-			const child = target.platform === 'win32'
-				? spawn('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', script, ...args], { detached: true, stdio: 'ignore', windowsHide: true })
-				: spawn('/bin/sh', [script, ...args], { detached: true, stdio: 'ignore' });
-			child.unref();
-		}).catch(err => this.logService.error('update#quitAndInstall - could not start the installer script', err));
+		// Synchronous on purpose: the process exits right after this, and the script waits for our pid before it swaps.
+		try {
+			startSwapScript(target, script, [String(process.pid), target.root, unpacked, target.launch, join(this.cacheDir, 'update.log')]);
+		} catch (err) {
+			this.logService.error('update#quitAndInstall - could not start the installer script', err);
+		}
 	}
 
 	protected override async cancelPendingUpdate(): Promise<void> {
@@ -271,7 +269,7 @@ export class VantrexUpdateService extends AbstractUpdateService {
 		const pending = this.pending;
 		this.pending = undefined;
 		if (pending) {
-			await rm(pending.unpacked, { recursive: true, force: true });
+			await removeTree(pending.unpacked);
 		}
 	}
 
@@ -284,14 +282,19 @@ export class VantrexUpdateService extends AbstractUpdateService {
 	}
 
 	private async removeStaleStaging(): Promise<void> {
-		await rm(this.cacheDir, { recursive: true, force: true });
+		// Keep update.log: it is the only record of what the installer script did before the editor restarted.
+		for (const name of await readdir(this.cacheDir).catch(() => [] as string[])) {
+			if (name !== 'update.log') {
+				await removeTree(join(this.cacheDir, name));
+			}
+		}
 		const target = getInstallTarget(process.platform, process.execPath, this.cacheDir);
 		if (!target || target.platform === 'win32') {
 			return;
 		}
 		for (const name of await readdir(target.stagingParent).catch(() => [] as string[])) {
 			if (name.startsWith('.vantrex-update-')) {
-				await rm(join(target.stagingParent, name), { recursive: true, force: true });
+				await removeTree(join(target.stagingParent, name));
 			}
 		}
 	}

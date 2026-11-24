@@ -18,7 +18,7 @@ on:
       platforms:
         description: Which platforms to build
         type: choice
-        options: [all, windows, macos, linux]
+        options: [all, windows, macos]
         default: all
       draft_release:
         description: Publish a draft release with the archives
@@ -45,9 +45,7 @@ jobs:
         run: |
           ALL='[
             {"name":"Windows x64","os":"windows-2022","platform":"win32","arch":"x64","group":"windows"},
-            {"name":"macOS arm64 (Apple silicon)","os":"macos-15","platform":"darwin","arch":"arm64","group":"macos"},
-            {"name":"macOS x64 (Intel)","os":"macos-15-intel","platform":"darwin","arch":"x64","group":"macos"},
-            {"name":"Linux x64","os":"ubuntu-22.04","platform":"linux","arch":"x64","group":"linux"}
+            {"name":"macOS arm64 (Apple silicon)","os":"macos-15","platform":"darwin","arch":"arm64","group":"macos"}
           ]'
           if [ -z "$SELECTED" ] || [ "$SELECTED" = all ]; then
             MATRIX="$(echo "$ALL" | jq -c '.')"

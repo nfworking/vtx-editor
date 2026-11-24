@@ -135,7 +135,7 @@ export class VantrexOnboardingOverlay extends Disposable {
 		dot.setAttribute('cx', '16');
 		dot.setAttribute('cy', '24');
 		dot.setAttribute('r', '3');
-		dot.setAttribute('fill', '#ff5a3f');
+		dot.setAttribute('fill', '#fafafa');
 		svg.append(path, dot);
 		return svg;
 	}
@@ -161,7 +161,7 @@ export class VantrexOnboardingOverlay extends Disposable {
 				return [this.mark(), this.heading('Welcome to Vantrex', 'Build, commit and ship, from one fast editor that knows your platform.'), this.button('Get started', () => this.go(1), { primary: true })];
 
 			case 1: {
-				const tiles = (['dark', 'light', 'glass'] as const).map(choice => {
+				const tiles = (['dark', 'light'] as const).map(choice => {
 					const tile = el('button', 'theme', [el('div', `swatch ${choice}`, [el('i'), el('i'), el('i')]), el('span', undefined, [THEME_NAMES[choice]])]);
 					tile.setAttribute('aria-pressed', String(this.theme === choice));
 					tile.addEventListener('click', () => {
@@ -171,7 +171,7 @@ export class VantrexOnboardingOverlay extends Disposable {
 					});
 					return tile;
 				});
-				return [this.heading('Pick a look', 'The window glass follows your choice. You can change it any time from the command bar.'), el('div', 'themes', tiles), this.button('Continue', () => this.go(2), { primary: true, disabled: !this.theme })];
+				return [this.heading('Pick a look', 'You can change it any time from the command bar.'), el('div', 'themes', tiles), this.button('Continue', () => this.go(2), { primary: true, disabled: !this.theme })];
 			}
 
 			case 2: {

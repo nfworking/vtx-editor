@@ -1,9 +1,18 @@
 /*---------------------------------------------------------------------------------------------
- *  Vantrex: the workbench look. The same black canvas and orange signal as before, in the platform's Apple-style layer
- *  (vtx-website/src/styles/apple.css): liquid glass surfaces, continuous rounded corners, pills, and spring motion.
+ *  Vantrex: the workbench look, the same system as the platform dashboard and the website: a pure black canvas, neutral
+ *  white as the only accent, flat docked panels with hairline edges, lightly rounded controls (a few pixels), Geist for the interface
+ *  and one easing. Solid surfaces only: no glass, blur or transparency.
  *  Colours come from the Vantrex Dark theme (extensions/theme-vantrex); this file only holds what a theme cannot say:
  *  fonts, shape, glass, the floating layout and motion.
  *--------------------------------------------------------------------------------------------*/
+
+@font-face {
+	font-family: 'Geist';
+	src: url('./fonts/geist-100_900-normal.woff2') format('woff2');
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: block;
+}
 
 @font-face {
 	font-family: 'JetBrains Mono';
@@ -14,36 +23,27 @@
 }
 
 .monaco-workbench {
-	--vtx-accent: #ff5a3f;
-	--vtx-accent-soft: #ff7a60;
+	--vtx-accent: #fafafa;
+	--vtx-edge: rgba(255, 255, 255, 0.1);
+	--vtx-fill: #141414;
+	--vtx-fill-hi: #1f1f1f;
+	--vtx-canvas: #000;
+	--vtx-surface: #0a0a0a;
+	--vtx-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
 
-	/* Liquid glass, as in the website's apple.css: a faint white fill, a light edge, a lit top rim and a deep shadow. */
-	--vtx-g-fill: rgba(255, 255, 255, 0.06);
-	--vtx-g-fill-hi: rgba(255, 255, 255, 0.12);
-	--vtx-g-edge: rgba(255, 255, 255, 0.13);
-	--vtx-g-rim: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -1px 0 rgba(0, 0, 0, 0.35) inset;
-	--vtx-g-shadow: var(--vtx-g-rim), 0 12px 40px rgba(0, 0, 0, 0.5);
-	--vtx-g-blur: blur(26px) saturate(190%) brightness(1.08);
+	--vtx-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-	--vtx-e-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
-	--vtx-e-smooth: cubic-bezier(0.32, 0.72, 0, 1);
+	/* Radii: small. Panels are square; controls are 4px; floating surfaces 6px. */
+	--vtx-r-s: 3px;
+	--vtx-r-m: 4px;
+	--vtx-r-l: 6px;
 
-	/* Radii, by role: the tiers of the Apple layer. */
-	--vtx-r-s: 8px;
-	--vtx-r-m: 12px;
-	--vtx-r-l: 18px;
-	--vtx-r-card: 16px;
-	--vtx-r-pill: 999px;
-
-	/* The gap between floating panels is twice this (each panel is inset by it). */
-	--vtx-gap: 3px;
-
-	--vtx-font-ui: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
-	--vtx-font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+	--vtx-font-ui: 'Geist', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+	--vtx-font-display: 'Geist', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
 	--vtx-font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 }
 
-/* ---- type: the system font for the interface, JetBrains Mono for code ---- */
+/* ---- type: Geist for the interface, JetBrains Mono for code ---- */
 
 :root .monaco-workbench.monaco-workbench,
 :root .monaco-workbench.monaco-workbench .monaco-action-bar,
@@ -60,7 +60,6 @@
 	letter-spacing: -0.011em;
 }
 
-/* Section labels are sentence-case system type, not mono caps. */
 .monaco-workbench .part.sidebar > .title .title-label h2,
 .monaco-workbench .part.auxiliarybar > .title .title-label h2,
 .monaco-workbench .part.panel > .title .monaco-action-bar .action-label:not([class*="codicon"]),
@@ -89,113 +88,60 @@
 	font-size: 11.5px;
 }
 
-/* ---- the floating layout: every panel is a rounded card on the black canvas ----
- * Panels keep their layout boxes (so nothing inside needs to know); each is clipped to a rounded rectangle inset from its
- * box, which leaves a gap between neighbours, and a glass edge is drawn on top. */
+/* ---- layout: flat docked panels on a black canvas, separated by one hairline ---- */
+
+body,
+.monaco-workbench,
+.monaco-workbench .part.titlebar,
+.monaco-workbench .part.titlebar > .titlebar-container,
+.monaco-workbench .part.statusbar {
+	background-color: var(--vtx-canvas) !important;
+}
 
 .monaco-workbench .part.sidebar,
 .monaco-workbench .part.auxiliarybar,
-.monaco-workbench .part.editor,
-.monaco-workbench .part.panel {
-	position: relative;
-	clip-path: inset(var(--vtx-gap) round var(--vtx-r-card));
-}
-
-.monaco-workbench .part.sidebar::after,
-.monaco-workbench .part.auxiliarybar::after,
-.monaco-workbench .part.editor::after,
-.monaco-workbench .part.panel::after,
-.monaco-workbench .part.activitybar::after {
-	content: '';
-	position: absolute;
-	inset: var(--vtx-gap);
-	border-radius: var(--vtx-r-card);
-	border: 1px solid var(--vtx-g-edge);
-	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
-	pointer-events: none;
-	z-index: 50;
-}
-
-/* The side panels are the glass ones: a lit top fading into the canvas. */
-.monaco-workbench .part.sidebar,
-.monaco-workbench .part.auxiliarybar {
-	background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018) 38%, rgba(255, 255, 255, 0.01));
-}
-
-.monaco-workbench .part.panel {
-	background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012));
-}
-
-/* Activity bar: a slim capsule. */
+.monaco-workbench .part.panel,
 .monaco-workbench .part.activitybar {
-	position: relative;
-	clip-path: inset(var(--vtx-gap) round 22px);
-	background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
-}
-
-.monaco-workbench .part.activitybar::after {
-	border-radius: 22px;
-}
-
-/* Status bar: no pill, no fill. It sits on the canvas itself, so the bottom edge of the window is seamless pure black. */
-.monaco-workbench .part.statusbar {
-	background-color: #000 !important;
+	border-color: var(--vtx-edge) !important;
 	background-image: none;
-	border: none !important;
+}
+
+.monaco-workbench .part.statusbar {
+	border-top: 1px solid var(--vtx-edge) !important;
 	box-shadow: none;
 }
 
 .monaco-workbench .part.statusbar > .items-container {
-	padding: 0 14px;
+	padding: 0 12px;
 }
 
-/* The canvas behind every panel is pure black, so the gaps between cards read as one surface. */
-body,
-.monaco-workbench,
-.monaco-workbench .part.titlebar,
-.monaco-workbench .part.titlebar > .titlebar-container {
-	background-color: #000 !important;
-}
-
-/* Title bar: only the window controls; the floating command bar does the rest. */
+/* Title bar: only the window controls; the command bar does the rest. */
 .monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center {
 	display: none;
 }
 
-/* ---- shape: continuous corners and pills on everything that floats or can be pressed ---- */
+/* ---- shape: lightly rounded controls, no pills ---- */
 
 .monaco-workbench .monaco-button,
 .monaco-workbench .monaco-dropdown-with-primary,
-.monaco-workbench .monaco-button-dropdown {
-	border-radius: var(--vtx-r-pill) !important;
-}
-
+.monaco-workbench .monaco-button-dropdown,
 .monaco-workbench .monaco-inputbox,
 .monaco-workbench .monaco-select-box,
-.monaco-workbench .monaco-dropdown {
-	border-radius: var(--vtx-r-m) !important;
-}
-
+.monaco-workbench .monaco-dropdown,
 .monaco-workbench .monaco-inputbox > .ibwrapper {
 	border-radius: var(--vtx-r-m) !important;
 }
 
 .monaco-workbench .monaco-custom-toggle,
 .monaco-workbench .keybinding-label .monaco-keybinding-key,
-.monaco-workbench .monaco-keybinding > .monaco-keybinding-key {
-	border-radius: 6px !important;
-}
-
+.monaco-workbench .monaco-keybinding > .monaco-keybinding-key,
 .monaco-workbench .action-item .action-label,
-.monaco-workbench .monaco-action-bar .action-item .action-label {
-	border-radius: 9px !important;
-}
-
+.monaco-workbench .monaco-action-bar .action-item .action-label,
 .monaco-workbench .statusbar-item {
-	border-radius: var(--vtx-r-pill) !important;
+	border-radius: var(--vtx-r-s) !important;
 }
 
-/* ---- glass surfaces: menus, palettes, hovers, toasts, dialogs ---- */
+/* ---- floating surfaces: menus, palettes, hovers, toasts, dialogs. Solid, one hairline and a plain shadow. ---- */
 
 .monaco-workbench .monaco-menu,
 .monaco-workbench .context-view .monaco-menu,
@@ -210,89 +156,49 @@ body,
 .monaco-workbench .editor-widget,
 .monaco-workbench .dialog-box,
 .monaco-workbench .monaco-dialog-box {
-	-webkit-backdrop-filter: var(--vtx-g-blur);
-	backdrop-filter: var(--vtx-g-blur);
-	border: 1px solid var(--vtx-g-edge) !important;
-	box-shadow: var(--vtx-g-shadow) !important;
+	-webkit-backdrop-filter: none !important;
+	backdrop-filter: none !important;
+	background-color: var(--vtx-surface) !important;
+	border: 1px solid var(--vtx-edge) !important;
+	box-shadow: var(--vtx-shadow) !important;
+	border-radius: var(--vtx-r-l) !important;
+	overflow: hidden;
 }
 
 .monaco-workbench .monaco-menu,
 .monaco-workbench .context-view .monaco-menu {
-	border-radius: var(--vtx-r-m) !important;
-	padding: 5px;
+	padding: 4px;
 }
 
-.monaco-workbench .monaco-menu .monaco-action-bar .action-item .action-menu-item {
+.monaco-workbench .monaco-menu .monaco-action-bar .action-item .action-menu-item,
+.monaco-workbench .notification-list-item,
+.monaco-workbench .quick-input-list .monaco-list-row {
 	border-radius: var(--vtx-r-s) !important;
 }
 
-.monaco-workbench .quick-input-widget,
-.monaco-workbench .dialog-box,
-.monaco-workbench .monaco-dialog-box,
-.monaco-workbench .notifications-center {
-	border-radius: var(--vtx-r-l) !important;
-}
-
-.monaco-workbench .monaco-hover,
-.monaco-workbench .monaco-editor .monaco-hover,
-.monaco-workbench .monaco-editor .suggest-widget,
-.monaco-workbench .monaco-editor .find-widget,
-.monaco-workbench .monaco-editor .parameter-hints-widget,
-.monaco-workbench .editor-widget,
-.monaco-workbench .notification-toast {
-	border-radius: var(--vtx-r-m) !important;
-	overflow: hidden;
-}
-
-.monaco-workbench .notification-list-item {
-	border-radius: var(--vtx-r-s) !important;
-}
-
-/* The quick input is the command bar opened: it drops from the same spot, a little wider. */
 .monaco-workbench .quick-input-widget {
 	top: 42px !important;
 	width: min(640px, 80vw) !important;
-	overflow: hidden;
 }
 
-.monaco-workbench .quick-input-widget .quick-input-box .monaco-inputbox {
-	border-radius: var(--vtx-r-pill) !important;
-	padding: 0 6px;
-}
-
-.monaco-workbench .quick-input-list .monaco-list-row {
-	border-radius: var(--vtx-r-s) !important;
-}
-
-/* ---- lists and trees: rows are inset pills ---- */
+/* ---- lists and trees ---- */
 
 .monaco-workbench .monaco-list .monaco-list-row {
-	clip-path: inset(0 6px round var(--vtx-r-s));
-	transition: background-color 0.3s var(--vtx-e-smooth);
+	transition: background-color 0.15s var(--vtx-ease);
 }
 
-.monaco-workbench .quick-input-list .monaco-list-row {
-	clip-path: none;
-}
-
-/* The selected row keeps its colour from the theme and gains a short orange lamp on the left. */
-.monaco-workbench .monaco-list .monaco-list-row.selected {
-	box-shadow: inset 3px 0 0 var(--vtx-accent);
-}
-
-/* ---- tabs: pills on the card ---- */
+/* ---- tabs ---- */
 
 .monaco-workbench .part.editor > .content .editor-group-container > .title .tabs-container > .tab {
-	clip-path: inset(5px 3px round var(--vtx-r-s));
 	border: none;
-	transition: background-color 0.35s var(--vtx-e-smooth), color 0.35s var(--vtx-e-smooth);
+	transition: background-color 0.15s var(--vtx-ease), color 0.15s var(--vtx-ease);
 }
 
 .monaco-workbench .part.editor > .content .editor-group-container > .title .tabs-container > .tab.active {
-	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.14) inset;
+	box-shadow: 0 -1px 0 0 var(--vtx-accent) inset;
 }
 
-/* ---- activity bar: a lit pill marks the active view instead of a bar ---- */
+/* ---- activity bar: a flat rail; the active view is a filled square ---- */
 
 .monaco-workbench .part.activitybar .action-item .active-item-indicator,
 .monaco-workbench .part.activitybar .action-item.checked::before,
@@ -301,21 +207,12 @@ body,
 }
 
 .monaco-workbench .part.activitybar > .content .monaco-action-bar .action-item .action-label {
-	border-radius: 12px !important;
-	transition: background-color 0.35s var(--vtx-e-smooth), scale 0.5s var(--vtx-e-spring);
-}
-
-.monaco-workbench .part.activitybar > .content .monaco-action-bar .action-item:hover .action-label {
-	scale: 1.06;
-}
-
-.monaco-workbench .part.activitybar > .content .monaco-action-bar .action-item:active .action-label {
-	scale: 0.94;
+	border-radius: var(--vtx-r-m) !important;
+	transition: background-color 0.15s var(--vtx-ease);
 }
 
 .monaco-workbench .part.activitybar > .content .monaco-action-bar .action-item.checked .action-label {
-	background: var(--vtx-g-fill-hi);
-	box-shadow: var(--vtx-g-rim);
+	background: var(--vtx-fill-hi);
 }
 
 /* Files, Search and Source Control (and the account and gear). Everything else is reachable from the command bar. */
@@ -324,52 +221,44 @@ body,
 	display: none !important;
 }
 
-/* ---- buttons: orange pills with a lit rim and spring press ---- */
+/* ---- buttons: solid white, small radius, a short press ---- */
 
 .monaco-workbench .monaco-button {
-	font-weight: 600;
+	font-weight: 500;
 	text-transform: none;
-	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 6px 18px rgba(0, 0, 0, 0.3);
-	transition: scale 0.55s var(--vtx-e-spring), filter 0.3s, background-color 0.3s;
+	box-shadow: none;
+	transition: filter 0.15s var(--vtx-ease), scale 0.15s var(--vtx-ease), background-color 0.15s var(--vtx-ease);
 }
 
 .monaco-workbench .monaco-button:hover {
-	scale: 1.03;
-	filter: brightness(1.06);
+	filter: brightness(0.92);
 }
 
 .monaco-workbench .monaco-button:active {
-	scale: 0.96;
+	scale: 0.98;
 }
 
 .monaco-workbench .monaco-button.secondary {
-	box-shadow: var(--vtx-g-rim);
-	border: 1px solid var(--vtx-g-edge);
-	-webkit-backdrop-filter: var(--vtx-g-blur);
-	backdrop-filter: var(--vtx-g-blur);
+	box-shadow: none;
+	border: 1px solid var(--vtx-edge);
 }
 
 .monaco-workbench .monaco-text-button {
-	padding: 5px 14px;
+	padding: 5px 12px;
 }
 
-/* Small icon buttons (title actions, panel actions) ease and press. */
 .monaco-workbench .monaco-action-bar .action-item .action-label {
-	transition: background-color 0.3s var(--vtx-e-smooth), scale 0.5s var(--vtx-e-spring);
+	transition: background-color 0.15s var(--vtx-ease);
 }
 
-.monaco-workbench .monaco-action-bar .action-item:active .action-label {
-	scale: 0.92;
-}
-
-/* ---- scrollbars: thin, rounded ---- */
+/* ---- scrollbars: thin ---- */
 
 .monaco-workbench .monaco-scrollable-element > .scrollbar > .slider {
-	border-radius: var(--vtx-r-pill) !important;
+	border-radius: var(--vtx-r-s) !important;
 }
 
 .monaco-workbench ::selection {
-	background: rgba(255, 90, 63, 0.38);
+	background: rgba(255, 255, 255, 0.22);
 }
 
 .monaco-editor .current-line {
@@ -380,8 +269,8 @@ body,
 
 .monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlideCategories .header h1.product-name {
 	font-family: var(--vtx-font-display);
-	font-weight: 650;
-	font-size: 60px;
+	font-weight: 600;
+	font-size: 56px;
 	letter-spacing: -0.045em;
 	line-height: 1;
 	text-transform: none;
@@ -421,21 +310,20 @@ body,
 	padding: 7px 14px;
 	margin: 2px 0;
 	border-radius: var(--vtx-r-pill);
-	background: var(--vtx-g-fill);
-	border: 1px solid var(--vtx-g-edge);
-	box-shadow: var(--vtx-g-rim);
-	transition: background-color 0.35s var(--vtx-e-smooth), scale 0.55s var(--vtx-e-spring);
+	background: var(--vtx-fill);
+	border: 1px solid var(--vtx-edge);
+	transition: background-color 0.2s var(--vtx-e-smooth), scale 0.15s var(--vtx-e-spring);
 }
 
 .monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlideCategories .index-list .start-container .button-link:hover,
 .monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlideCategories .index-list .start-container a:hover {
-	background: var(--vtx-g-fill-hi);
+	background: var(--vtx-fill-hi);
 	color: #f2f2f2;
-	scale: 1.03;
+	scale: 1.02;
 }
 
 .monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlideCategories .index-list .codicon {
-	color: #ff5a3f;
+	color: #fafafa;
 }
 
 .monaco-workbench .part.editor > .content .gettingStartedContainer .footer .showOnStartup,
@@ -458,94 +346,28 @@ body,
 	}
 }
 
-/* ---- Vantrex Light: the same shapes on a light canvas. Fills become black-alpha, the accent is the platform's light orange. ---- */
+/* ---- Vantrex Light: the same shapes on a light canvas ---- */
 
 .monaco-workbench.vs {
-	--vtx-accent: #ff3b1f;
-	--vtx-accent-soft: #ff5a3f;
-	--vtx-canvas: #f2f2f4;
-	--vtx-g-fill: rgba(0, 0, 0, 0.035);
-	--vtx-g-fill-hi: rgba(0, 0, 0, 0.07);
-	--vtx-g-edge: rgba(0, 0, 0, 0.11);
-	--vtx-g-rim: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 -1px 0 rgba(0, 0, 0, 0.05) inset;
-	--vtx-g-shadow: var(--vtx-g-rim), 0 10px 30px rgba(0, 0, 0, 0.14);
-	--vtx-g-blur: blur(26px) saturate(180%);
+	--vtx-accent: #0a0a0a;
+	--vtx-edge: rgba(0, 0, 0, 0.1);
+	--vtx-fill: #f0f0f0;
+	--vtx-fill-hi: #e6e6e6;
+	--vtx-canvas: #fafafa;
+	--vtx-surface: #ffffff;
+	--vtx-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
 }
 
-body:has(.monaco-workbench.vs),
-.monaco-workbench.vs,
-.monaco-workbench.vs .part.titlebar,
-.monaco-workbench.vs .part.titlebar > .titlebar-container,
-.monaco-workbench.vs .part.statusbar {
+.monaco-workbench.vs ::selection {
+	background: rgba(0, 0, 0, 0.14);
+}
+
+body:has(.monaco-workbench.vs) {
 	background-color: var(--vtx-canvas) !important;
 }
 
-.monaco-workbench.vs .part.sidebar,
-.monaco-workbench.vs .part.auxiliarybar {
-	background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.025), rgba(0, 0, 0, 0.008));
-}
-
-.monaco-workbench.vs .part.panel {
-	background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.006));
-}
-
-.monaco-workbench.vs .part.activitybar {
-	background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.012));
-}
-
-/* ---- Vantrex Liquid Glass: the macOS Dock. The window is frosted glass (set from the main process) and the page paints one
-   thin black tint over it; --vtx-glass-tint comes from the vantrex.window.glassTransparency setting (1 is solid, 0 is clear).
-   Every panel is a Dock-like slab: a lifted glass fill, a bright 1px rim, a lit top edge and large continuous corners. ---- */
-
-body.vantrex-glass {
-	background-color: rgba(0, 0, 0, var(--vtx-glass-tint, 0.2)) !important;
-}
-
-body.vantrex-glass .monaco-workbench,
-body.vantrex-glass .monaco-workbench .part.titlebar,
-body.vantrex-glass .monaco-workbench .part.titlebar > .titlebar-container,
-body.vantrex-glass .monaco-workbench .part.statusbar {
-	background-color: transparent !important;
-}
-
-body.vantrex-glass .monaco-workbench {
-	--vtx-r-card: 24px;
-	--vtx-g-fill: rgba(255, 255, 255, 0.1);
-	--vtx-g-edge: rgba(255, 255, 255, 0.3);
-	--vtx-g-rim: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 -1px 0 rgba(255, 255, 255, 0.06) inset;
-	--vtx-g-shadow: var(--vtx-g-rim), 0 16px 48px rgba(0, 0, 0, 0.35);
-}
-
-body.vantrex-glass .monaco-workbench .part.sidebar,
-body.vantrex-glass .monaco-workbench .part.auxiliarybar,
-body.vantrex-glass .monaco-workbench .part.editor,
-body.vantrex-glass .monaco-workbench .part.panel {
-	background-color: rgba(255, 255, 255, 0.04) !important;
-}
-
-body.vantrex-glass .monaco-workbench .part.sidebar,
-body.vantrex-glass .monaco-workbench .part.auxiliarybar {
-	background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.015) 45%);
-}
-
-body.vantrex-glass .monaco-workbench .part.activitybar {
-	background-color: rgba(255, 255, 255, 0.06) !important;
-	background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03));
-}
-
-body.vantrex-glass .monaco-workbench .part.sidebar::after,
-body.vantrex-glass .monaco-workbench .part.auxiliarybar::after,
-body.vantrex-glass .monaco-workbench .part.editor::after,
-body.vantrex-glass .monaco-workbench .part.panel::after,
-body.vantrex-glass .monaco-workbench .part.activitybar::after {
-	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 -1px 0 rgba(255, 255, 255, 0.05) inset;
-}
-
-/* Full-page editors paint their own background; with Liquid Glass they have to let the glass through. */
-body.vantrex-glass .monaco-workbench .part.editor > .content .gettingStartedContainer,
-body.vantrex-glass .monaco-workbench .settings-editor,
-body.vantrex-glass .monaco-workbench .extension-editor,
-body.vantrex-glass .monaco-workbench .keybindings-editor,
-body.vantrex-glass .monaco-workbench .editor-container {
-	background-color: transparent !important;
+@media (prefers-reduced-motion: reduce) {
+	.monaco-workbench * {
+		transition-duration: 0.01ms !important;
+	}
 }

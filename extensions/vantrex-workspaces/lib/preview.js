@@ -170,11 +170,11 @@ button,select{background:transparent;color:#f2f2f2;border:0;border-radius:999px;
 button:hover:not(:disabled),select:hover{background:var(--fill-hi);scale:1.06}button:active:not(:disabled){scale:.92}
 select{padding:0 6px;appearance:none;-webkit-appearance:none}select option{background:#161618;color:#f2f2f2}
 input{flex:1;min-width:0;height:26px;background:rgba(0,0,0,.4);color:#f2f2f2;border:1px solid var(--edge);border-radius:999px;padding:0 12px;font:12px/1 ui-monospace,'JetBrains Mono',Menlo,monospace}
-input:focus{outline:none;border-color:rgba(255,90,63,.8);box-shadow:0 0 0 3px rgba(255,90,63,.18)}
+input:focus{outline:none;border-color:rgba(255,255,255,.8);box-shadow:0 0 0 3px rgba(255,255,255,.18)}
 .stage{flex:1;position:relative;overflow:auto;display:flex;justify-content:center;border:1px solid var(--edge);border-radius:16px;background:#050505}
 iframe{border:0;background:#fff;height:100%;width:100%}
 .msg{position:absolute;inset:0;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;color:#9a9a9a;background:#000;font-size:13px}
-.msg::before{content:'';width:8px;height:8px;border-radius:50%;background:#ff5a3f;box-shadow:0 0 14px rgba(255,90,63,.8);animation:ping 1.6s var(--smooth) infinite}
+.msg::before{content:'';width:8px;height:8px;border-radius:50%;background:#fafafa;box-shadow:0 0 14px rgba(255,255,255,.8);animation:ping 1.6s var(--smooth) infinite}
 @keyframes ping{0%{scale:.7;opacity:.6}50%{scale:1.3;opacity:1}100%{scale:.7;opacity:.6}}
 .msg.hide{display:none}
 #retry{border:1px solid var(--edge);background:var(--fill);padding:0 16px;height:30px}

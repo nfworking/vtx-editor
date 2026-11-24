@@ -8,7 +8,7 @@ import type { BrowserWindow } from 'electron';
 import { join } from '../../../base/common/path.js';
 import { isMacintosh, isWindows } from '../../../base/common/platform.js';
 import { ILogService } from '../../log/common/log.js';
-import { DEFAULT_GLASS_TRANSPARENCY, getGlassTint, GlassMode, IGlassResult, IGlassTint } from '../common/vantrexOnboarding.js';
+import { GlassMode, IGlassResult, IGlassTint } from '../common/vantrexOnboarding.js';
 
 /** The native addon (glass.mm): the system's Liquid Glass behind the web content of a window. macOS only. */
 interface IGlassAddon {
@@ -148,7 +148,7 @@ export function isOnboardingWindow(win: BrowserWindow): boolean {
 	return onboardingWindowId === win.id;
 }
 
-/** Starts the flow in a window: no window controls, a fixed size, the onboarding glass. */
+/** Starts the flow in a window: no window controls, a fixed size, on a plain opaque surface. */
 export function enterOnboarding(win: BrowserWindow, appRoot: string, resizeWindow: boolean, logService?: ILogService): IGlassResult {
 	if (resizeWindow) {
 		if (isMacintosh) {
@@ -157,7 +157,7 @@ export function enterOnboarding(win: BrowserWindow, appRoot: string, resizeWindo
 		win.setResizable(false);
 	}
 
-	return applyWindowGlass(win, appRoot, { enabled: true, tint: getGlassTint('dark', DEFAULT_GLASS_TRANSPARENCY) }, logService);
+	return { mode: 'none', needsRestart: false };
 }
 
 /** Ends the flow: the window gets its controls back and grows, smoothly, to the size of the editor. Resolves when it has finished. */

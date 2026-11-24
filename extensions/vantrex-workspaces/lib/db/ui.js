@@ -5,7 +5,7 @@
 const crypto = require('crypto');
 
 const CSS = `
-:root{color-scheme:dark;--edge:rgba(255,255,255,.13);--fill:rgba(255,255,255,.05);--fill-hi:rgba(255,255,255,.1);--accent:#ff5a3f;--muted:#8c8c8c;--spring:cubic-bezier(.34,1.4,.64,1);--smooth:cubic-bezier(.32,.72,0,1)}
+:root{color-scheme:dark;--edge:rgba(255,255,255,.13);--fill:rgba(255,255,255,.05);--fill-hi:rgba(255,255,255,.1);--accent:#fafafa;--muted:#8c8c8c;--spring:cubic-bezier(.34,1.4,.64,1);--smooth:cubic-bezier(.32,.72,0,1)}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%}
@@ -13,11 +13,11 @@ body{margin:0;background:#000;color:#f2f2f2;font:12.5px/1.45 -apple-system,Blink
 button,select,input{font:inherit;color:inherit}
 button{background:var(--fill);border:1px solid var(--edge);border-radius:999px;height:26px;padding:0 12px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.14);transition:background .3s var(--smooth),scale .5s var(--spring)}
 button:hover:not(:disabled){background:var(--fill-hi);scale:1.03}button:active:not(:disabled){scale:.96}button:disabled{opacity:.4;cursor:default}
-button.primary{background:var(--accent);color:#0a0c0d;border-color:transparent;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 6px 18px rgba(255,90,63,.25)}
+button.primary{background:var(--accent);color:#0a0c0d;border-color:transparent;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 6px 18px rgba(255,255,255,.25)}
 button.danger{color:#ff6b6b}
 button.ghost{background:transparent;border-color:transparent;box-shadow:none}
 input,select{background:rgba(0,0,0,.5);border:1px solid var(--edge);border-radius:10px;height:26px;padding:0 9px;outline:none}
-input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,90,63,.2)}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,255,255,.2)}
 select option{background:#161618}
 .bar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--edge);flex-wrap:wrap}
 .grow{flex:1}.muted{color:var(--muted)}.mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
@@ -36,9 +36,9 @@ td.edit{padding:2px 6px}td.edit input{width:100%;min-width:140px;height:24px;bor
 .tabs{display:flex;gap:4px;padding:6px 12px;border-bottom:1px solid var(--edge);overflow-x:auto}
 .tabs button{border-color:transparent;background:transparent;box-shadow:none}.tabs button[aria-selected=true]{background:var(--fill-hi);border-color:var(--edge)}
 .msg{padding:14px 16px}
-.err{margin:10px 12px;padding:9px 12px;border:1px solid rgba(255,90,63,.5);background:rgba(255,90,63,.1);border-radius:12px;white-space:pre-wrap}
+.err{margin:10px 12px;padding:9px 12px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.1);border-radius:12px;white-space:pre-wrap}
 .ok{color:#46a758}
-.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:6px;box-shadow:0 0 8px rgba(255,90,63,.7)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:6px;box-shadow:0 0 8px rgba(255,255,255,.7)}
 .card{border:1px solid var(--edge);border-radius:16px;background:var(--fill);box-shadow:inset 0 1px 0 rgba(255,255,255,.12);margin:12px}
 .pop{position:absolute;z-index:20;margin-top:6px;padding:12px;background:rgba(18,18,20,.92);border:1px solid var(--edge);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.6);display:grid;gap:8px;min-width:300px;-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px)}
 .rel{position:relative}

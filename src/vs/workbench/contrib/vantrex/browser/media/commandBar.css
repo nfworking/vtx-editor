@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------------------------
- *  Vantrex floating command bar: a glass pill with a pointer-following sheen (the website's apple.css header).
+ *  Vantrex command bar: a solid, lightly rounded search field in the title bar.
  *--------------------------------------------------------------------------------------------*/
 
 .monaco-workbench .vtx-commandbar {
@@ -17,52 +17,33 @@
 	margin: 0;
 	isolation: isolate;
 	overflow: hidden;
-	background: rgba(255, 255, 255, 0.07);
+	background: #0a0a0a;
 	color: #9a9a9a;
-	border: 1px solid rgba(255, 255, 255, 0.15);
-	border-radius: 999px;
-	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.22) inset, 0 -1px 0 rgba(0, 0, 0, 0.35) inset, 0 10px 30px rgba(0, 0, 0, 0.5);
-	-webkit-backdrop-filter: blur(26px) saturate(190%) brightness(1.08);
-	backdrop-filter: blur(26px) saturate(190%) brightness(1.08);
-	font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 6px;
+	box-shadow: none;
+	font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
 	font-size: 12px;
 	letter-spacing: -0.011em;
 	line-height: 1;
 	text-align: left;
 	cursor: pointer;
 	-webkit-app-region: no-drag;
-	transition: color 0.3s cubic-bezier(0.32, 0.72, 0, 1), background-color 0.3s cubic-bezier(0.32, 0.72, 0, 1), scale 0.55s cubic-bezier(0.34, 1.4, 0.64, 1);
-}
-
-/* the specular sheen follows the pointer */
-.monaco-workbench .vtx-commandbar::before {
-	content: '';
-	position: absolute;
-	inset: 0;
-	z-index: -1;
-	border-radius: inherit;
-	pointer-events: none;
-	background: radial-gradient(14rem circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, 0.18), transparent 62%);
-	opacity: 0;
-	transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+	transition: color 0.15s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.15s, scale 0.15s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .monaco-workbench .vtx-commandbar:hover {
 	color: #f2f2f2;
-	background: rgba(255, 255, 255, 0.11);
-	scale: 1.02;
-}
-
-.monaco-workbench .vtx-commandbar:hover::before {
-	opacity: 1;
+	background: #141414;
+	border-color: rgba(255, 255, 255, 0.2);
 }
 
 .monaco-workbench .vtx-commandbar:active {
-	scale: 0.97;
+	scale: 0.99;
 }
 
 .monaco-workbench .vtx-commandbar:focus-visible {
-	outline: 2px solid rgba(255, 90, 63, 0.8);
+	outline: 2px solid rgba(255, 255, 255, 0.6);
 	outline-offset: 2px;
 }
 
@@ -70,9 +51,8 @@
 	flex: none;
 	width: 6px;
 	height: 6px;
-	background: #ff5a3f;
+	background: #fafafa;
 	border-radius: 50%;
-	box-shadow: 0 0 10px rgba(255, 90, 63, 0.7);
 }
 
 .monaco-workbench .vtx-commandbar-text {

@@ -121,7 +121,6 @@ import './contrib/onboarding/electron-browser/onboardingTryout.contribution.js';
 // Logs
 import './contrib/logs/electron-browser/logs.contribution.js';
 import './contrib/vantrex/electron-browser/vantrexOnboarding.js';
-import './contrib/vantrex/electron-browser/vantrexGlass.js';
 
 // Localizations
 import './contrib/localization/electron-browser/localization.contribution.js';

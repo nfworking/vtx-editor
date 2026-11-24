@@ -12,7 +12,7 @@ import { ConfigurationTarget, IConfigurationService } from '../../../../platform
 import { IInstantiationService, ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
 import { INativeHostService } from '../../../../platform/native/common/native.js';
 import { IStorageService, StorageScope, StorageTarget } from '../../../../platform/storage/common/storage.js';
-import { DEFAULT_GLASS_TRANSPARENCY, IVantrexOnboardingResult, VANTREX_THEME_IDS, VantrexThemeChoice } from '../../../../platform/vantrexOnboarding/common/vantrexOnboarding.js';
+import { IVantrexOnboardingResult, VANTREX_THEME_IDS, VantrexThemeChoice } from '../../../../platform/vantrexOnboarding/common/vantrexOnboarding.js';
 import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from '../../../common/contributions.js';
 import { IAuthenticationService } from '../../../services/authentication/common/authentication.js';
 import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
@@ -28,7 +28,7 @@ interface IOnboardingDebugArgs {
 }
 
 /**
- * Runs the Vantrex onboarding flow in this window: the window goes small and clean on the system's glass, the flow shows over the
+ * Runs the Vantrex onboarding flow in this window: the window goes small and clean, the flow shows over the
  * (hidden) editor, and when it ends the window grows, smoothly, into the editor, which fades in.
  */
 class VantrexOnboardingRunner extends Disposable {
@@ -56,7 +56,7 @@ class VantrexOnboardingRunner extends Disposable {
 
 		const result = await new Promise<IVantrexOnboardingResult>(finish => {
 			this._register(new VantrexOnboardingOverlay({
-				setTheme: theme => { this.nativeHostService.setWindowGlass({ enabled: true, theme, transparency: DEFAULT_GLASS_TRANSPARENCY }); },
+				setTheme: () => { /* the flow itself is solid; the choice is applied when it ends */ },
 				requestNotifications: () => this.nativeHostService.requestVantrexNotifications(),
 				signIn: () => this.signIn(),
 				finish,

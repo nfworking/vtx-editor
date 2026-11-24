@@ -1,7 +1,7 @@
 {
   "name": "theme-vantrex",
   "displayName": "Vantrex Theme",
-  "description": "The Vantrex look: pure black with an orange signal, a light version, and a liquid glass version",
+  "description": "The Vantrex look: pure black, neutral and hairline like the platform and a light version",
   "categories": [
     "Themes"
   ],
@@ -24,12 +24,6 @@
         "label": "Vantrex Light",
         "uiTheme": "vs",
         "path": "./themes/vantrex-light.json"
-      },
-      {
-        "id": "Vantrex Liquid Glass",
-        "label": "Vantrex Liquid Glass",
-        "uiTheme": "vs-dark",
-        "path": "./themes/vantrex-liquid-glass.json"
       }
     ]
   },

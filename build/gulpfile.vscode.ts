@@ -519,7 +519,8 @@ function patchWin32DependenciesTask(destinationFolderName: string) {
 	return async () => {
 		const versionedResourcesFolder = util.getVersionedResourcesFolder('win32', commit!);
 		const deps = (await Promise.all([
-			glob('**/*.node', { cwd, ignore: 'extensions/node_modules/@parcel/watcher/**' }),
+			// vantrex-glass.node is the macOS-only glass addon: it is a Mach-O file, which rcedit cannot read.
+			glob('**/*.node', { cwd, ignore: ['extensions/node_modules/@parcel/watcher/**', '**/vantrexOnboarding/**'] }),
 			glob('**/rg.exe', { cwd }),
 			glob('**/tgrep.exe', { cwd }),
 			glob('**/*explorer_command*.dll', { cwd }),

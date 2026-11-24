@@ -125,6 +125,10 @@
 		"managedSettingsUrl": "https://api.github.com/copilot_internal/managed_settings"
 	},
 	"trustedExtensionAuthAccess": {
+		"vantrex": [
+			"vantrex.vantrex-workspaces",
+			"vantrex.vantrex-account"
+		],
 		"github": [
 			"GitHub.copilot-chat"
 		],

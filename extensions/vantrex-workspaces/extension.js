@@ -15,6 +15,7 @@ const { WorkspaceFileSystem } = require('./lib/fs');
 const { WorkspaceTerminal } = require('./lib/terminal');
 const { PreviewProxy, PreviewPanel } = require('./lib/preview');
 const { Baseline, commit } = require('./lib/commit');
+const { createWorkspaceScm } = require('./lib/scm');
 const tasks = require('./lib/tasks');
 const { activateDb, SCHEME: DB_SCHEME } = require('./lib/db');
 const dbApi = require('./lib/db/api');
@@ -27,6 +28,7 @@ let S;
 
 function activate(context) {
 	const fs = new WorkspaceFileSystem();
+	let wasSignedIn; // whether this window has had an account since it started
 	const output = vscode.window.createOutputChannel('Vantrex Workspace');
 	const status = vscode.window.createStatusBarItem('vantrex.workspace', vscode.StatusBarAlignment.Left, 90);
 	status.name = 'Vantrex Workspace';
@@ -37,7 +39,7 @@ function activate(context) {
 	context.subscriptions.push(
 		vscode.workspace.registerFileSystemProvider(SCHEME, fs, { isCaseSensitive: true }),
 		output, status, changes,
-		fs.onDidTouch((p) => { if (S && S.baseline) { S.baseline.touch(p); renderChanges(); } }),
+		fs.onDidTouch((p) => { if (S && S.baseline) { S.baseline.touch(p); renderChanges(); if (S.scm) { S.scm.schedule(); } } }),
 	);
 
 	function render(text, tip) {
@@ -56,25 +58,35 @@ function activate(context) {
 
 	// ---- picking and starting a workspace
 
+	/** Database projects, or why there are none to list: the platform may not offer databases, or the account may not have any. */
+	async function listDatabases() {
+		try { return { projects: await dbApi.projects() }; } catch (e) { return { projects: [], error: errText(e) }; }
+	}
+
 	/** Code projects (a GitHub repository, opened as a workspace) and database projects, in one list. */
-	async function pickProject() {
+	async function pickProject(only) {
 		const [code, dbs] = await Promise.all([
-			call('GET', 'projects').then((r) => r.data || []),
-			dbApi.projects().catch(() => []), // databases may be switched off on this platform
+			only === 'db' ? Promise.resolve([]) : call('GET', 'projects').then((r) => r.data || []),
+			only === 'code' ? Promise.resolve({ projects: [] }) : listDatabases(),
 		]);
 		const repos = code.filter((p) => p.repo_full_name);
-		if (!repos.length && !dbs.length) { vscode.window.showInformationMessage('No project is linked to a GitHub repository and there are no database projects yet.'); return undefined; }
 		const items = [];
-		if (repos.length) {
+		if (only !== 'db') {
 			items.push({ label: 'Code', kind: vscode.QuickPickItemKind.Separator });
 			for (const p of repos) { items.push({ label: `$(code) ${p.name}`, description: p.repo_full_name, detail: p.slug, kind: 'code', project: p }); }
+			if (!repos.length) { items.push({ label: '$(info) No project is linked to a GitHub repository yet', description: 'Link one in the dashboard', kind: 'dashboard', path: '/projects' }); }
 		}
-		if (dbs.length) {
+		if (only !== 'code') {
 			items.push({ label: 'Databases', kind: vscode.QuickPickItemKind.Separator });
-			for (const p of dbs) { items.push({ label: `$(database) ${p.name}`, description: p.state, detail: p.endpoint, kind: 'db', project: p }); }
+			for (const p of dbs.projects) { items.push({ label: `$(database) ${p.name}`, description: p.state, detail: p.endpoint, kind: 'db', project: p }); }
+			if (dbs.error) { items.push({ label: '$(warning) Databases could not be listed', description: dbs.error, kind: 'message', text: `Databases could not be listed: ${dbs.error}` }); }
+			else if (!dbs.projects.length) { items.push({ label: '$(add) No database projects yet', description: 'Create one in the dashboard', kind: 'dashboard', path: '/databases' }); }
 		}
-		const pick = await vscode.window.showQuickPick(items, { title: 'Open a Vantrex Workspace', placeHolder: 'Choose a project' });
-		return pick && Object.assign({ kind: pick.kind }, pick.project);
+		const pick = await vscode.window.showQuickPick(items, { title: only === 'db' ? 'Open a Database Project' : 'Open a Vantrex Workspace', placeHolder: 'Choose a project' });
+		if (!pick) { return undefined; }
+		if (pick.kind === 'dashboard') { await vscode.env.openExternal(vscode.Uri.parse(`${dashboardBase()}${pick.path}`)); return undefined; }
+		if (pick.kind === 'message') { vscode.window.showWarningMessage(pick.text); return undefined; }
+		return Object.assign({ kind: pick.kind }, pick.project);
 	}
 
 	async function pickBranch(project) {
@@ -105,10 +117,11 @@ function activate(context) {
 		return undefined;
 	}
 
-	async function openWorkspace() {
+	async function openWorkspace(only) {
 		try {
 			await vscode.authentication.getSession('vantrex', ['sync'], { createIfNone: true });
-			const project = await pickProject();
+			fs.restore();
+			const project = await pickProject(typeof only === 'string' ? only : undefined);
 			if (!project) { return; }
 			if (project.kind === 'db') {
 				// A database project has no files: the window becomes the database editor (lib/db).
@@ -151,11 +164,15 @@ function activate(context) {
 			if (e instanceof ApiError && e.status === 404) {
 				vscode.window.showWarningMessage('This workspace no longer exists. Open it again from the Vantrex menu.');
 			} else if (e instanceof ApiError && e.status === 401) {
-				void vscode.window.showWarningMessage('Sign in to Vantrex to use this workspace.', 'Sign In').then((p) => { if (p) { void vscode.commands.executeCommand('vantrex.account.signIn').then(() => attach()); } });
+				// Without an account the workspace must not stay open: sign in, or it is closed.
+				void vscode.window.showWarningMessage('Sign in to Vantrex to use this workspace.', 'Sign In', 'Close Workspace').then(async (p) => {
+					if (p === 'Sign In') { await vscode.commands.executeCommand('vantrex.account.signIn'); fs.restore(); void attach(); } else { void lockOut(false); }
+				});
 			}
 			return;
 		}
 		const w = detail.workspace;
+		wasSignedIn = true;
 		S = { id, workspace: w, projectId: w.project_id, branch: w.branch, scripts: detail.scripts || [], name: w.branch, phase: 'starting', abort: new AbortController() };
 		try {
 			const info = (await call('GET', `editor/projects/${encodeURIComponent(w.project_id)}`)).data;
@@ -166,7 +183,8 @@ function activate(context) {
 		updateStatus();
 
 		S.baseline = new Baseline(w.project_id, w.branch);
-		S.baseline.load().then(renderChanges, () => { /* a commit then says why */ });
+		S.scm = createWorkspaceScm(S, fs, (message) => commitChanges(message));
+		S.baseline.load().then(() => { renderChanges(); S.scm.refresh(); }, () => { /* a commit then says why */ });
 		S.beat = setInterval(() => { call('POST', `${ws(id)}/touch`).catch(() => { }); }, 30000);
 
 		void start(detail);
@@ -266,6 +284,15 @@ function activate(context) {
 
 	// ---- commands
 
+	/** Commits the changes to GitHub (asking where they go), from the command or from the Source Control view. */
+	async function commitChanges(message) {
+		if (!S.baseline.head) { await S.baseline.load(); }
+		const out = await commit(S.baseline, S.id, S.info && S.info.prod_branch, () => renderChanges(), { message });
+		renderChanges();
+		if (S.scm) { await S.scm.refresh(); }
+		return out;
+	}
+
 	async function needWorkspace() {
 		if (S) { return true; }
 		const pick = await vscode.window.showInformationMessage('This window has no Vantrex workspace open.', 'Open Workspace...');
@@ -312,6 +339,7 @@ function activate(context) {
 			{ label: '', kind: vscode.QuickPickItemKind.Separator },
 			{ label: '$(link-external) Open Project in the Dashboard', id: 'vantrex.workspace.dashboard' },
 			{ label: '$(folder-opened) Open Another Workspace...', id: 'vantrex.workspace.open' },
+			{ label: '$(database) Open Database Project...', id: 'vantrex.db.open' },
 			{ label: '$(debug-pause) Stop Workspace', id: 'vantrex.workspace.stop' },
 			{ label: '$(trash) Delete Workspace...', id: 'vantrex.workspace.delete' },
 		];
@@ -335,11 +363,11 @@ function activate(context) {
 			const r = (await call('POST', `${ws(S.id)}/env/sync`)).data;
 			vscode.window.showInformationMessage(`${r.count} development variable${r.count === 1 ? '' : 's'} loaded${r.count ? '. Restart the dev server to use them.' : '. Add some in the project settings.'}`);
 		})),
-		vscode.commands.registerCommand('vantrex.workspace.commit', guarded(async () => {
-			if (!S.baseline.head) { await S.baseline.load(); }
-			await commit(S.baseline, S.id, S.info && S.info.prod_branch, () => renderChanges());
-			renderChanges();
-		})),
+		vscode.commands.registerCommand('vantrex.workspace.commit', guarded(async () => { await commitChanges(); })),
+		vscode.commands.registerCommand('vantrex.workspace.scmCommit', guarded(async () => { await S.scm.commitFromBox(); })),
+		vscode.commands.registerCommand('vantrex.workspace.scmRefresh', guarded(async () => { await S.baseline.load().catch(() => { }); await S.scm.refresh(); })),
+		vscode.commands.registerCommand('vantrex.workspace.scmDiscard', guarded(async (state) => { if (state) { await S.scm.discard(state); } })),
+		vscode.commands.registerCommand('vantrex.db.open', () => openWorkspace('db')),
 		vscode.commands.registerCommand('vantrex.workspace.stop', guarded(async () => {
 			await call('POST', `${ws(S.id)}/stop`);
 			setPhase('stopped');
@@ -358,10 +386,41 @@ function activate(context) {
 		vscode.workspace.onDidChangeWorkspaceFolders(() => { if (S && folderId() !== S.id) { detach(); } void attach(); }),
 	);
 
+	/**
+	 * Signing out takes the workspace away: nothing in it may stay readable or writable. The editors are closed, the file system refuses
+	 * every request, and the window leaves the folder (which reloads it), so what was open cannot be reached any more.
+	 */
+	async function lockOut(announce) {
+		fs.revoke();
+		const open = (vscode.workspace.workspaceFolders || []).some((f) => f.uri.scheme === SCHEME || f.uri.scheme === DB_SCHEME);
+		if (S) { detach(); }
+		if (!open) { return; }
+		if (announce) { void vscode.window.showInformationMessage('You signed out of Vantrex, so the workspace was closed.'); }
+		// Leaving the folder reloads the window. Editors are not closed one by one: with unsaved edits that would ask a question nobody
+		// is there to answer, whereas leaving the folder keeps them in the editor's backup like any other window change.
+		await vscode.commands.executeCommand('workbench.action.closeFolder');
+	}
+
+	async function signedIn() {
+		try { return !!(await vscode.authentication.getSession('vantrex', ['sync'], { silent: true })); } catch { return false; }
+	}
+
+	// Only a real sign-out locks the workspace: a window that starts without an account is asked to sign in instead (see attach).
+	void signedIn().then((v) => { if (wasSignedIn === undefined) { wasSignedIn = v; } });
+	context.subscriptions.push(vscode.authentication.onDidChangeSessions(async (e) => {
+		if (e.provider.id !== 'vantrex') { return; }
+		const now = await signedIn();
+		const before = wasSignedIn;
+		wasSignedIn = now;
+		if (now) { fs.restore(); if (!S && folderId()) { void attach(); } return; }
+		if (S || before) { await lockOut(true); } // an attached workspace proves there was an account
+	}));
+
 	function detach() {
 		if (!S) { return; }
 		clearInterval(S.beat);
 		S.abort.abort();
+		if (S.scm) { S.scm.dispose(); }
 		if (S.proxy) { S.proxy.dispose(); }
 		S = undefined;
 		status.hide();
@@ -374,6 +433,15 @@ function activate(context) {
 
 	// Signed out or not, the status bar entry is only for windows that have a workspace; the menu command opens one from anywhere.
 	void attach();
+
+	// A window that comes back with a database project open (that has no workspace to attach to) still needs an account.
+	setTimeout(async () => {
+		const open = (vscode.workspace.workspaceFolders || []).some((f) => f.uri.scheme === DB_SCHEME);
+		if (open && !(await signedIn())) {
+			const pick = await vscode.window.showWarningMessage('Sign in to Vantrex to use this database project.', 'Sign In', 'Close');
+			if (pick === 'Sign In') { await vscode.commands.executeCommand('vantrex.account.signIn'); } else { void lockOut(false); }
+		}
+	}, 4000);
 }
 
 function deactivate() { }

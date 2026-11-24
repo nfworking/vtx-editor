@@ -38,6 +38,11 @@ class WorkspaceFileSystem {
 
 	watch() { return new vscode.Disposable(() => { }); }
 
+	/** After signing out nothing may be read or written, whatever the editor still has cached. */
+	revoke() { this._revoked = true; this._lists.clear(); this._changes.fire([]); }
+	restore() { this._revoked = false; }
+	_guard() { if (this._revoked) { throw FileSystemError.NoPermissions('You signed out of Vantrex. Sign in to use this workspace.'); } }
+
 	async _list(uri, fresh) {
 		const id = uri.authority;
 		const dir = rel(uri);
@@ -67,6 +72,7 @@ class WorkspaceFileSystem {
 	invalidate() { this._lists.clear(); this._changes.fire([]); }
 
 	async stat(uri) {
+		this._guard();
 		const p = rel(uri);
 		if (p === '') { return { type: FileType.Directory, ctime: 0, mtime: 0, size: 0 }; }
 		if (this._made.has(`${uri.authority}|${p}`)) { return { type: FileType.Directory, ctime: 0, mtime: 0, size: 0 }; }
@@ -80,10 +86,12 @@ class WorkspaceFileSystem {
 	}
 
 	async readDirectory(uri) {
+		this._guard();
 		return (await this._list(uri, true)).map((e) => [e.name, (e.dir ? FileType.Directory : FileType.File) | (e.link ? FileType.SymbolicLink : 0)]);
 	}
 
 	async createDirectory(uri) {
+		this._guard();
 		this._made.add(`${uri.authority}|${rel(uri)}`);
 		this._forget(uri);
 		this._touched.fire(rel(uri));
@@ -91,6 +99,7 @@ class WorkspaceFileSystem {
 	}
 
 	async readFile(uri) {
+		this._guard();
 		try {
 			const r = await call('GET', `${ws(uri.authority)}/fs/file`, { query: { path: rel(uri) } });
 			const v = r.headers.get('x-vtx-version');
@@ -102,6 +111,7 @@ class WorkspaceFileSystem {
 	}
 
 	async writeFile(uri, content, options) {
+		this._guard();
 		const p = rel(uri);
 		const exists = this._versions.has(uri.toString()) || this._mtimes.has(uri.toString());
 		if (!exists) {
@@ -125,6 +135,7 @@ class WorkspaceFileSystem {
 	}
 
 	async delete(uri) {
+		this._guard();
 		const p = rel(uri);
 		if (p === '') { throw FileSystemError.NoPermissions('The workspace root cannot be deleted.'); }
 		try {
@@ -139,6 +150,7 @@ class WorkspaceFileSystem {
 	}
 
 	async rename(from, to, options) {
+		this._guard();
 		if (!(options && options.overwrite)) {
 			let there = true;
 			try { await this.stat(to); } catch { there = false; }

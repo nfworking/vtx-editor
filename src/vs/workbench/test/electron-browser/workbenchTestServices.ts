@@ -136,6 +136,11 @@ export class TestNativeHostService implements INativeHostService {
 	async setWindowOpacity(opacity: number, options?: INativeHostOptions): Promise<void> { }
 	async setWindowIgnoreMouseEvents(ignore: boolean, options?: INativeHostOptions): Promise<void> { }
 	async updateWindowControls(options: { height?: number; backgroundColor?: string; foregroundColor?: string }): Promise<void> { }
+	async setWindowGlass(): Promise<{ mode: 'none'; needsRestart: boolean }> { return { mode: 'none', needsRestart: false }; }
+	async enterVantrexOnboarding(): Promise<{ active: boolean; resize: boolean; mode: 'none' }> { return { active: false, resize: false, mode: 'none' }; }
+	async leaveVantrexOnboarding(): Promise<void> { }
+	async markVantrexOnboardingDone(): Promise<void> { }
+	async requestVantrexNotifications(): Promise<'denied'> { return 'denied'; }
 	async updateWindowAccentColor(color: string): Promise<void> { }
 	async setMinimumSize(width: number | undefined, height: number | undefined): Promise<void> { }
 	async saveWindowSplash(value: IPartsSplash): Promise<void> { }

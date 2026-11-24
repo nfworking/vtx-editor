@@ -16,6 +16,7 @@ import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from '../../wo
 import { coalesce } from '../../../base/common/arrays.js';
 import { getAllWindowsExcludingOffscreen } from '../../windows/electron-main/windows.js';
 import { ILogService, LogLevel } from '../../log/common/log.js';
+import { isTransparentWindow } from '../../vantrexOnboarding/electron-main/vantrexGlass.js';
 import { IThemeMainService } from './themeMainService.js';
 
 // These default colors match our default themes
@@ -328,7 +329,10 @@ export class ThemeMainService extends Disposable implements IThemeMainService {
 	private updateBackgroundColor(windowId: number, splash: IPartsSplash): void {
 		for (const window of getAllWindowsExcludingOffscreen()) {
 			if (window.id === windowId) {
-				window.setBackgroundColor(splash.colorInfo.background);
+				// A window created see-through (the onboarding and Liquid Glass) stays clear: painting it would hide the glass.
+				if (!isTransparentWindow(window)) {
+					window.setBackgroundColor(splash.colorInfo.background);
+				}
 				break;
 			}
 		}

@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { GlassMode, IGlassResult, VantrexThemeChoice } from '../../vantrexOnboarding/common/vantrexOnboarding.js';
 import { VSBuffer } from '../../../base/common/buffer.js';
 import { Event } from '../../../base/common/event.js';
 import { URI, UriComponents } from '../../../base/common/uri.js';
@@ -393,6 +394,29 @@ export interface ICommonNativeHostService {
 	setWindowAlwaysOnTop(alwaysOnTop: boolean, options?: INativeHostOptions): Promise<void>;
 
 	updateWindowControls(options: INativeHostOptions & { height?: number; horizontalInset?: number; backgroundColor?: string; foregroundColor?: string; dimmed?: boolean }): Promise<void>;
+
+	/**
+	 * Turns the see-through window on or off with the best glass this machine has: the system's native Liquid Glass (macOS 26
+	 * with Metal), the older vibrancy, or acrylic on Windows. `transparency` is a percentage (0 solid, 100 untinted glass).
+	 * Resolves with the kind of glass used, and whether the window has to be reopened before it can show.
+	 */
+	setWindowGlass(options: INativeHostOptions & { enabled: boolean; theme?: VantrexThemeChoice; transparency?: number; backgroundColor?: string }): Promise<IGlassResult>;
+
+	/**
+	 * Starts the Vantrex onboarding flow in this window. `active` is false when this is not the window the first run belongs to
+	 * (unless `force`). The window then has no controls, a fixed size and the onboarding glass; `resize` says whether it is the
+	 * small first-run window that has to be grown into the editor when the flow ends.
+	 */
+	enterVantrexOnboarding(options?: INativeHostOptions & { force?: boolean }): Promise<{ active: boolean; resize: boolean; mode: GlassMode }>;
+
+	/** Ends the onboarding flow: the window gets its controls back and grows, smoothly, to the size of the editor. */
+	leaveVantrexOnboarding(options: INativeHostOptions & { resize: boolean }): Promise<void>;
+
+	/** Remembers, for the main process to read at the next start, that the onboarding flow has been done or skipped. */
+	markVantrexOnboardingDone(): Promise<void>;
+
+	/** Asks the system for permission to show notifications by showing one. */
+	requestVantrexNotifications(): Promise<'allowed' | 'denied'>;
 
 	/**
 	 * Remembers the alternate location the folder of the window is at, so that

@@ -41,7 +41,7 @@ export enum ThemeSettings {
 
 export namespace ThemeSettingDefaults {
 	export const COLOR_THEME_DARK = 'Vantrex Dark';
-	export const COLOR_THEME_LIGHT = 'Vantrex Dark';
+	export const COLOR_THEME_LIGHT = 'Vantrex Light';
 	export const COLOR_THEME_HC_DARK = 'Default High Contrast';
 	export const COLOR_THEME_HC_LIGHT = 'Default High Contrast Light';
 

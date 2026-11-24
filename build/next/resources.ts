@@ -35,6 +35,9 @@ const commonResourcePatterns = [
 const desktopResourcePatterns = [
 	...commonResourcePatterns,
 
+	// The native glass addon (macOS)
+	'vs/platform/vantrexOnboarding/electron-main/vantrex-glass.node',
+
 	// HTML
 	'vs/code/electron-browser/workbench/workbench.html',
 	'vs/code/electron-browser/workbench/workbench-dev.html',

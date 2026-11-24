@@ -7,6 +7,9 @@ import electron, { Display, Rectangle } from 'electron';
 import { Color } from '../../../base/common/color.js';
 import { Event } from '../../../base/common/event.js';
 import { join } from '../../../base/common/path.js';
+import { IStateService } from '../../state/node/state.js';
+import { ONBOARDING_SIZE } from '../../vantrexOnboarding/common/vantrexOnboarding.js';
+import { claimOnboarding } from '../../vantrexOnboarding/electron-main/vantrexGlass.js';
 import { IProcessEnvironment, isLinux, isMacintosh, isWindows } from '../../../base/common/platform.js';
 import { URI } from '../../../base/common/uri.js';
 import { IAuxiliaryWindow } from '../../auxiliaryWindow/electron-main/auxiliaryWindow.js';
@@ -240,6 +243,24 @@ export function defaultBrowserWindowOptions(accessor: ServicesAccessor, windowSt
 
 	if (isMacintosh) {
 		options.acceptFirstMouse = true; // enabled by default
+		options.visualEffectState = 'active'; // the Liquid Glass theme's vibrancy stays frosted when the window is not focused
+
+		// The Liquid Glass theme shows the desktop through the window, which only a window created see-through can do. Changing to
+		// the theme later asks for a restart; changing away needs none, since the page then paints a solid background.
+		const firstRun = !overrides && claimOnboarding(accessor.get(IStateService).getItem<boolean>('vantrex.onboarding.done', false) === true);
+		if (firstRun || configurationService.getValue<string>('workbench.colorTheme') === 'Vantrex Liquid Glass') {
+			options.transparent = true;
+			options.backgroundColor = undefined!;
+		}
+
+		// The first run starts as the small, clean onboarding window; it grows into the editor when the flow is done.
+		if (firstRun) {
+			options.width = ONBOARDING_SIZE.width;
+			options.height = ONBOARDING_SIZE.height;
+			options.x = undefined;
+			options.y = undefined;
+			options.center = true;
+		}
 
 		if (windowSettings?.clickThroughInactive === false) {
 			options.acceptFirstMouse = false;

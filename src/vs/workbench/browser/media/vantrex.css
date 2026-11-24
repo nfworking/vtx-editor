@@ -457,3 +457,95 @@ body,
 		transition-duration: 0.01ms !important;
 	}
 }
+
+/* ---- Vantrex Light: the same shapes on a light canvas. Fills become black-alpha, the accent is the platform's light orange. ---- */
+
+.monaco-workbench.vs {
+	--vtx-accent: #ff3b1f;
+	--vtx-accent-soft: #ff5a3f;
+	--vtx-canvas: #f2f2f4;
+	--vtx-g-fill: rgba(0, 0, 0, 0.035);
+	--vtx-g-fill-hi: rgba(0, 0, 0, 0.07);
+	--vtx-g-edge: rgba(0, 0, 0, 0.11);
+	--vtx-g-rim: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 -1px 0 rgba(0, 0, 0, 0.05) inset;
+	--vtx-g-shadow: var(--vtx-g-rim), 0 10px 30px rgba(0, 0, 0, 0.14);
+	--vtx-g-blur: blur(26px) saturate(180%);
+}
+
+body:has(.monaco-workbench.vs),
+.monaco-workbench.vs,
+.monaco-workbench.vs .part.titlebar,
+.monaco-workbench.vs .part.titlebar > .titlebar-container,
+.monaco-workbench.vs .part.statusbar {
+	background-color: var(--vtx-canvas) !important;
+}
+
+.monaco-workbench.vs .part.sidebar,
+.monaco-workbench.vs .part.auxiliarybar {
+	background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.025), rgba(0, 0, 0, 0.008));
+}
+
+.monaco-workbench.vs .part.panel {
+	background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.006));
+}
+
+.monaco-workbench.vs .part.activitybar {
+	background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.012));
+}
+
+/* ---- Vantrex Liquid Glass: the macOS Dock. The window is frosted glass (set from the main process) and the page paints one
+   thin black tint over it; --vtx-glass-tint comes from the vantrex.window.glassTransparency setting (1 is solid, 0 is clear).
+   Every panel is a Dock-like slab: a lifted glass fill, a bright 1px rim, a lit top edge and large continuous corners. ---- */
+
+body.vantrex-glass {
+	background-color: rgba(0, 0, 0, var(--vtx-glass-tint, 0.2)) !important;
+}
+
+body.vantrex-glass .monaco-workbench,
+body.vantrex-glass .monaco-workbench .part.titlebar,
+body.vantrex-glass .monaco-workbench .part.titlebar > .titlebar-container,
+body.vantrex-glass .monaco-workbench .part.statusbar {
+	background-color: transparent !important;
+}
+
+body.vantrex-glass .monaco-workbench {
+	--vtx-r-card: 24px;
+	--vtx-g-fill: rgba(255, 255, 255, 0.1);
+	--vtx-g-edge: rgba(255, 255, 255, 0.3);
+	--vtx-g-rim: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 -1px 0 rgba(255, 255, 255, 0.06) inset;
+	--vtx-g-shadow: var(--vtx-g-rim), 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+
+body.vantrex-glass .monaco-workbench .part.sidebar,
+body.vantrex-glass .monaco-workbench .part.auxiliarybar,
+body.vantrex-glass .monaco-workbench .part.editor,
+body.vantrex-glass .monaco-workbench .part.panel {
+	background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+body.vantrex-glass .monaco-workbench .part.sidebar,
+body.vantrex-glass .monaco-workbench .part.auxiliarybar {
+	background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.015) 45%);
+}
+
+body.vantrex-glass .monaco-workbench .part.activitybar {
+	background-color: rgba(255, 255, 255, 0.06) !important;
+	background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03));
+}
+
+body.vantrex-glass .monaco-workbench .part.sidebar::after,
+body.vantrex-glass .monaco-workbench .part.auxiliarybar::after,
+body.vantrex-glass .monaco-workbench .part.editor::after,
+body.vantrex-glass .monaco-workbench .part.panel::after,
+body.vantrex-glass .monaco-workbench .part.activitybar::after {
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 -1px 0 rgba(255, 255, 255, 0.05) inset;
+}
+
+/* Full-page editors paint their own background; with Liquid Glass they have to let the glass through. */
+body.vantrex-glass .monaco-workbench .part.editor > .content .gettingStartedContainer,
+body.vantrex-glass .monaco-workbench .settings-editor,
+body.vantrex-glass .monaco-workbench .extension-editor,
+body.vantrex-glass .monaco-workbench .keybindings-editor,
+body.vantrex-glass .monaco-workbench .editor-container {
+	background-color: transparent !important;
+}

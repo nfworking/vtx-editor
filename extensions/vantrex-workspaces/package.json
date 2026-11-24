@@ -135,6 +135,29 @@
         "title": "Wake Database",
         "category": "Vantrex Database",
         "icon": "$(zap)"
+      },
+      {
+        "command": "vantrex.workspace.scmCommit",
+        "title": "Commit & Push",
+        "category": "Vantrex",
+        "icon": "$(check)"
+      },
+      {
+        "command": "vantrex.workspace.scmRefresh",
+        "title": "Refresh Changes",
+        "category": "Vantrex",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "vantrex.workspace.scmDiscard",
+        "title": "Discard Changes",
+        "category": "Vantrex",
+        "icon": "$(discard)"
+      },
+      {
+        "command": "vantrex.db.open",
+        "title": "Open Database Project...",
+        "category": "Vantrex"
       }
     ],
     "configuration": {
@@ -215,6 +238,29 @@
         {
           "command": "vantrex.db.selectTop",
           "when": "false"
+        },
+        {
+          "command": "vantrex.workspace.scmDiscard",
+          "when": "false"
+        }
+      ],
+      "scm/title": [
+        {
+          "command": "vantrex.workspace.scmCommit",
+          "when": "scmProvider == vantrex",
+          "group": "navigation@1"
+        },
+        {
+          "command": "vantrex.workspace.scmRefresh",
+          "when": "scmProvider == vantrex",
+          "group": "navigation@2"
+        }
+      ],
+      "scm/resourceState/context": [
+        {
+          "command": "vantrex.workspace.scmDiscard",
+          "when": "scmProvider == vantrex",
+          "group": "inline"
         }
       ]
     },

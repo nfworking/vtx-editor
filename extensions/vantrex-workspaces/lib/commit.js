@@ -83,7 +83,7 @@ async function collect(base, workspaceId, progress) {
 }
 
 /** Asks for the message and where the commit goes, then commits. Resolves to the result or undefined when cancelled or nothing changed. */
-async function commit(base, workspaceId, prodBranch, onDone) {
+async function commit(base, workspaceId, prodBranch, onDone, options = {}) {
 	const changes = await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: 'Finding your changes' }, (progress) => collect(base, workspaceId, progress));
 	if (!changes.length) { vscode.window.showInformationMessage('Nothing to commit: no file differs from the branch.'); return undefined; }
 	if (changes.length > MAX_FILES) { vscode.window.showErrorMessage(`${changes.length} files changed. The editor commits up to ${MAX_FILES} at a time.`); return undefined; }
@@ -92,7 +92,7 @@ async function commit(base, workspaceId, prodBranch, onDone) {
 	const removed = changes.filter((c) => c.delete).length;
 	const summary = `${changes.length} file${changes.length === 1 ? '' : 's'} (${added} new, ${removed} deleted)`;
 
-	const message = await vscode.window.showInputBox({ title: `Commit ${summary}`, prompt: 'Commit message', placeHolder: 'Describe the change', validateInput: (v) => (v.trim() ? undefined : 'A commit message is required') });
+	const message = options.message && options.message.trim() ? options.message : await vscode.window.showInputBox({ title: `Commit ${summary}`, prompt: 'Commit message', placeHolder: 'Describe the change', validateInput: (v) => (v.trim() ? undefined : 'A commit message is required') });
 	if (message === undefined) { return undefined; }
 
 	const onProd = base.branch === prodBranch;
@@ -154,4 +154,4 @@ async function commit(base, workspaceId, prodBranch, onDone) {
 	return out;
 }
 
-module.exports = { Baseline, commit };
+module.exports = { Baseline, commit, collect, gitId };

@@ -1,0 +1,86 @@
+/* The Vantrex onboarding flow, shown over the editor window itself. The window is the system's glass (native Liquid Glass on
+   macOS 26, vibrancy on older Macs, acrylic on Windows) and the editor behind the flow is hidden until the flow is done. */
+
+body.vtx-onboarding { background-color: transparent !important; }
+body.vtx-onboarding .monaco-workbench { opacity: 0; pointer-events: none; }
+body.vtx-onboarding-reveal .monaco-workbench { transition: opacity 0.55s cubic-bezier(0.32, 0.72, 0, 1) 0.15s; }
+
+.vtx-ob {
+	--accent: #ff5a3f;
+	--fg: #f5f5f7;
+	--fg-2: rgba(245, 245, 247, 0.62);
+	--line: rgba(255, 255, 255, 0.16);
+	--chip: rgba(255, 255, 255, 0.1);
+	--chip-hi: rgba(255, 255, 255, 0.18);
+	--surface: rgba(24, 24, 28, 0.9);
+
+	position: fixed; inset: 0; z-index: 2147483000;
+	display: flex; align-items: center; justify-content: center;
+	color: var(--fg);
+	font: 14px/1.4 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+	-webkit-font-smoothing: antialiased; user-select: none; -webkit-user-select: none;
+	-webkit-app-region: drag;
+	transition: opacity 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.vtx-ob.leaving { opacity: 0; pointer-events: none; }
+.vtx-ob[data-theme="light"] {
+	--fg: #1d1d1f; --fg-2: rgba(29, 29, 31, 0.6); --line: rgba(0, 0, 0, 0.14); --chip: rgba(0, 0, 0, 0.06); --chip-hi: rgba(0, 0, 0, 0.11); --surface: rgba(248, 248, 250, 0.92);
+	color-scheme: light;
+}
+.vtx-ob[data-theme="glass"] { --surface: rgba(24, 24, 28, 0.72); }
+.vtx-ob[data-glass="css"] { background: var(--surface); }
+
+.vtx-ob * { box-sizing: border-box; margin: 0; }
+.vtx-ob button { -webkit-app-region: no-drag; font: inherit; color: inherit; }
+
+.vtx-ob-frame { position: relative; width: 780px; height: 540px; max-width: 100%; max-height: 100%; }
+
+.vtx-ob-step { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 28px 40px 64px; text-align: center; animation: vtx-ob-in 0.45s cubic-bezier(0.32, 0.72, 0, 1); }
+@keyframes vtx-ob-in { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+
+.vtx-ob h1 { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
+.vtx-ob .lede { max-width: 440px; color: var(--fg-2); font-size: 14px; }
+.vtx-ob .heading { display: grid; gap: 8px; justify-items: center; }
+.vtx-ob .mark { width: 64px; height: 64px; }
+.vtx-ob .big-icon { color: var(--accent); }
+.vtx-ob .big-icon.codicon { font-size: 46px; }
+
+.vtx-ob .button { border: 0; border-radius: 999px; padding: 9px 22px; font-weight: 500; background: var(--chip); box-shadow: 0 0 0 1px var(--line) inset, 0 1px 0 rgba(255, 255, 255, 0.18) inset; cursor: default; transition: transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1), background 0.2s; }
+.vtx-ob .button:hover { background: var(--chip-hi); }
+.vtx-ob .button:active { transform: scale(0.96); }
+.vtx-ob .button.primary { background: var(--accent); color: #fff; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 6px 18px rgba(255, 90, 63, 0.35); }
+.vtx-ob .button.primary:hover { background: #ff7a60; }
+.vtx-ob .button[disabled] { opacity: 0.45; pointer-events: none; }
+.vtx-ob .row { display: flex; gap: 12px; align-items: center; justify-content: center; }
+.vtx-ob .ok { color: #34c759; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.vtx-ob .muted { color: var(--fg-2); font-size: 13px; max-width: 420px; }
+
+.vtx-ob .themes { display: flex; gap: 18px; }
+.vtx-ob .theme { background: none; border: 0; display: grid; gap: 10px; justify-items: center; cursor: default; }
+.vtx-ob .swatch { width: 150px; height: 96px; border-radius: 14px; padding: 16px; display: grid; align-content: center; gap: 6px; box-shadow: 0 0 0 1px var(--line) inset; transition: box-shadow 0.25s; }
+.vtx-ob .theme[aria-pressed="true"] .swatch { box-shadow: 0 0 0 2.5px var(--accent) inset; }
+.vtx-ob .theme[aria-pressed="true"] span { font-weight: 600; }
+.vtx-ob .swatch i { display: block; height: 5px; border-radius: 3px; }
+.vtx-ob .swatch i:nth-child(1) { width: 46px; } .vtx-ob .swatch i:nth-child(2) { width: 30px; background: var(--accent) !important; } .vtx-ob .swatch i:nth-child(3) { width: 58px; }
+.vtx-ob .swatch.dark { background: #000; } .vtx-ob .swatch.dark i { background: rgba(255, 255, 255, 0.35); }
+.vtx-ob .swatch.light { background: #f7f7f8; } .vtx-ob .swatch.light i { background: rgba(0, 0, 0, 0.25); }
+.vtx-ob .swatch.glass { background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.08)); } .vtx-ob .swatch.glass i { background: rgba(255, 255, 255, 0.5); }
+
+.vtx-ob .pending { padding: 16px 28px; border-radius: 20px; background: var(--chip); box-shadow: 0 0 0 1px var(--line) inset; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.vtx-ob .pending strong { font-size: 18px; font-weight: 600; }
+.vtx-ob .spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--accent); animation: vtx-ob-spin 0.8s linear infinite; display: inline-block; vertical-align: -2px; margin-right: 8px; }
+@keyframes vtx-ob-spin { to { transform: rotate(360deg); } }
+
+.vtx-ob .features { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 660px; text-align: left; }
+.vtx-ob .feature { display: flex; gap: 12px; align-items: flex-start; padding: 13px 14px; border-radius: 18px; background: var(--chip); box-shadow: 0 0 0 1px var(--line) inset, 0 1px 0 rgba(255, 255, 255, 0.14) inset; }
+.vtx-ob .feature .codicon { font-size: 22px; flex: none; color: var(--accent); margin-top: 1px; }
+.vtx-ob .feature b { display: block; font-size: 13px; font-weight: 600; }
+.vtx-ob .feature span { color: var(--fg-2); font-size: 12px; }
+
+.vtx-ob footer { position: absolute; left: 22px; right: 22px; bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
+.vtx-ob .spacer { width: 32px; }
+.vtx-ob .dots { display: flex; gap: 7px; align-items: center; }
+.vtx-ob .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--fg-2); opacity: 0.5; transition: all 0.3s; }
+.vtx-ob .dots i.on { width: 8px; height: 8px; background: var(--accent); opacity: 1; }
+.vtx-ob .icon-button { width: 32px; height: 32px; border-radius: 50%; border: 0; font-size: 20px; line-height: 1; background: var(--chip); box-shadow: 0 0 0 1px var(--line) inset; }
+.vtx-ob .icon-button.hidden { visibility: hidden; }

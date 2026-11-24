@@ -34,6 +34,9 @@ import { captureMacWindow, getMacScreenWindows } from './macScreenWindows.js';
 import { IGlobalKeybindingsMainService } from '../../globalKeybindings/electron-main/globalKeybindingsMainService.js';
 import { IGPUProcessMainService } from '../../gpu/electron-main/gpuProcessMainService.js';
 import { IProductService } from '../../product/common/productService.js';
+import { IStateService } from '../../state/node/state.js';
+import { DEFAULT_GLASS_TRANSPARENCY, getGlassTint, GlassMode, IGlassResult, VantrexThemeChoice } from '../../vantrexOnboarding/common/vantrexOnboarding.js';
+import { applyWindowGlass, enterOnboarding, isOnboardingWindow, leaveOnboarding, requestNotifications } from '../../vantrexOnboarding/electron-main/vantrexGlass.js';
 import { IPartsSplash } from '../../theme/common/themeService.js';
 import { IThemeMainService } from '../../theme/electron-main/themeMainService.js';
 import { defaultWindowState, ICodeWindow, LoadReason } from '../../window/electron-main/window.js';
@@ -97,6 +100,7 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 		@IGlobalKeybindingsMainService private readonly globalKeybindingsMainService: IGlobalKeybindingsMainService,
 		@IGPUProcessMainService gpuProcessMainService: IGPUProcessMainService,
 		@IApplicationStorageMainService private readonly applicationStorageService: IApplicationStorageMainService,
+		@IStateService private readonly stateService: IStateService,
 	) {
 		super();
 
@@ -566,6 +570,49 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 	async updateWindowControls(windowId: number | undefined, options: INativeHostOptions & { height?: number; horizontalInset?: number; backgroundColor?: string; foregroundColor?: string; dimmed?: boolean }): Promise<void> {
 		const window = this.windowById(options?.targetWindowId, windowId);
 		window?.updateWindowControls(options);
+	}
+
+	async setWindowGlass(windowId: number | undefined, options: INativeHostOptions & { enabled: boolean; theme?: VantrexThemeChoice; transparency?: number; backgroundColor?: string }): Promise<IGlassResult> {
+		const win = this.windowById(options?.targetWindowId, windowId)?.win;
+		if (!win) {
+			return { mode: 'none', needsRestart: false };
+		}
+
+		return applyWindowGlass(win, this.environmentMainService.appRoot, {
+			enabled: options.enabled,
+			tint: getGlassTint(options.theme ?? 'glass', options.transparency ?? DEFAULT_GLASS_TRANSPARENCY),
+			restoreBackground: options.backgroundColor,
+		}, this.logService);
+	}
+
+	async enterVantrexOnboarding(windowId: number | undefined, options?: INativeHostOptions & { force?: boolean }): Promise<{ active: boolean; resize: boolean; mode: GlassMode }> {
+		const win = this.windowById(options?.targetWindowId, windowId)?.win;
+		if (!win || win.isDestroyed()) {
+			return { active: false, resize: false, mode: 'none' };
+		}
+
+		const resize = isOnboardingWindow(win);
+		if (!resize && !options?.force) {
+			return { active: false, resize: false, mode: 'none' };
+		}
+
+		const result = enterOnboarding(win, this.environmentMainService.appRoot, resize, this.logService);
+		return { active: true, resize, mode: result.mode };
+	}
+
+	async leaveVantrexOnboarding(windowId: number | undefined, options: INativeHostOptions & { resize: boolean }): Promise<void> {
+		const win = this.windowById(options?.targetWindowId, windowId)?.win;
+		if (win) {
+			await leaveOnboarding(win, options.resize);
+		}
+	}
+
+	async markVantrexOnboardingDone(): Promise<void> {
+		this.stateService.setItem('vantrex.onboarding.done', true);
+	}
+
+	requestVantrexNotifications(): Promise<'allowed' | 'denied'> {
+		return requestNotifications();
 	}
 
 	async updateWindowAccentColor(windowId: number | undefined, color: 'default' | 'off' | string, inactiveColor: string | undefined): Promise<void> {
